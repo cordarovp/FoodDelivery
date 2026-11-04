@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FoodDelivery.Migrations
 {
-    [DbContext(typeof(FoodDeliveryContext))]
+    [DbContext(typeof(FoodDeliveryDbContext))]
     [Migration("20261103105827_InitalCreate")]
     partial class InitalCreate
     {

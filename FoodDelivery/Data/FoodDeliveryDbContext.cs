@@ -3,9 +3,9 @@ using FoodDelivery.Entity;
 
 namespace FoodDelivery.Data
 {
-    public class FoodDeliveryContext : DbContext
+    public class FoodDeliveryDbContext : DbContext
     {
-        public FoodDeliveryContext(DbContextOptions<FoodDeliveryContext> options) : base(options)
+        public FoodDeliveryDbContext(DbContextOptions<FoodDeliveryDbContext> options) : base(options)
         {}
 
         public DbSet<Food> Foods { get; set; }

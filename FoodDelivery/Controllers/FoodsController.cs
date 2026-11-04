@@ -7,9 +7,9 @@ namespace FoodDelivery.Controllers
 {
     public class FoodsController : ControllerBase
     {
-        private readonly FoodDeliveryContext _db;
+        private readonly FoodDeliveryDbContext _db;
 
-        public FoodsController(FoodDeliveryContext db)
+        public FoodsController(FoodDeliveryDbContext db)
         {
             _db = db;
         }

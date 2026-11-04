@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FoodDelivery.Migrations
 {
-    [DbContext(typeof(FoodDeliveryContext))]
+    [DbContext(typeof(FoodDeliveryDbContext))]
     partial class FoodDeliveryContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
