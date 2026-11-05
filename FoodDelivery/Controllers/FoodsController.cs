@@ -1,62 +1,65 @@
-﻿using FoodDelivery.Data;
-using FoodDelivery.Entity;
+﻿using FoodDelivery.Entity;
+using FoodDelivery.Repository;
+using FoodDelivery.Service;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace FoodDelivery.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class FoodsController : ControllerBase
     {
-        private readonly FoodDeliveryDbContext _db;
+        private readonly FoodService _service;
 
-        public FoodsController(FoodDeliveryDbContext db)
+        public FoodsController(FoodService service, FoodRepository repository)
         {
-            _db = db;
-        }
-
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Food>> GetFood(int id)
-        {
-            var food = await _db.Foods.FindAsync(id);
-
-            if(food == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(food);
+            _service = service;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Food>>> GetFoodList()
+        public async Task<ActionResult<IEnumerable<Food>>> GetFood()
         {
-            return await _db.Foods.ToListAsync();
+            var foodList = await _service.GetFoodList();
+            return Ok(foodList);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Food>> GetFoodId(int id)
+        {
+            var existingFood = await _service.GetFoodById(id);
+            if(existingFood == null) return NotFound($"Food by id: {id} vas not found.");
+
+            return Ok(existingFood);
         }
 
         [HttpPost]
-        public async Task<IActionResult> PostFood(Food food)
+        public async Task<ActionResult<Food>> PostFood(Food food)
         {
-            _db.Foods.Add(food);
-            await _db.SaveChangesAsync();
+            await _service.PostFood(food);
 
-            return Ok(food);
+            return CreatedAtAction(nameof(GetFoodId), new {id = food.Id}, food);
         }
 
-        [HttpDelete]
-        public async Task<IActionResult> DeleteFood(int id)
+        [HttpPut]
+        public async Task<IActionResult> PutFood(int id, Food food)
         {
-            var food = await _db.Foods.FindAsync(id);
-            if(food == null)
-            {
-                return NotFound();
-            }
+            var success = await _service.PutFoodAsync(id, food);
 
-            _db.Foods.Remove(food);
-            await _db.SaveChangesAsync();
+            if (!success) return BadRequest();
 
             return NoContent();
         }
 
+        [HttpDelete]
+        public async Task<IActionResult> DeleteFood(int id) 
+        { 
+            var success = await _service.DeleteFoodAsync(id);
 
+            if(success) return NotFound();
+
+            return NoContent();
+        }
     }
 }
