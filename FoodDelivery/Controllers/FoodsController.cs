@@ -11,9 +11,9 @@ namespace FoodDelivery.Controllers
     [ApiController]
     public class FoodsController : ControllerBase
     {
-        private readonly FoodService _service;
+        private readonly IFoodService _service;
 
-        public FoodsController(FoodService service, FoodRepository repository)
+        public FoodsController(IFoodService service)
         {
             _service = service;
         }
