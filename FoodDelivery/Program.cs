@@ -10,7 +10,7 @@ namespace FoodDelivery
             var builder = WebApplication.CreateBuilder(args);
             var connectionString = builder.Configuration.GetConnectionString("FoodDb") ?? throw new InvalidOperationException("Connection string 'FoodDb' not found.");
 
-            builder.Services.AddDbContext<FoodDb>(options => options.UseSqlServer(connectionString));
+            builder.Services.AddDbContext<FoodDeliveryDbContext>(options => options.UseSqlServer(connectionString));
 
             // Add services to the container.
 

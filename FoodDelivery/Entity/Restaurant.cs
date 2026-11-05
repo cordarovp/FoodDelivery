@@ -1,9 +1,13 @@
-﻿namespace FoodDelivery.Entity
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace FoodDelivery.Entity
 {
     public class Restaurant
     {
         public int Id { get; set; }
-
-        public string Geolocation { get; set; }
+        [Required(ErrorMessage = "Requires latidude of Restaurant!")]
+        public double GeoLat { get; set; }
+        [Required(ErrorMessage = "Requires longitude of Restaurant!")]
+        public double GeoLon { get; set; }
     }
 }
