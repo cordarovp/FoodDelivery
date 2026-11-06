@@ -1,62 +1,66 @@
-﻿using FoodDelivery.Data;
-using FoodDelivery.Entity;
+﻿using FoodDelivery.Entity;
+using FoodDelivery.Repository;
+using FoodDelivery.Service;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace FoodDelivery.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class FoodsController : ControllerBase
     {
-        private readonly FoodDeliveryDbContext _db;
+        private readonly IFoodService _service;
 
-        public FoodsController(FoodDeliveryDbContext db)
+        public FoodsController(IFoodService service)
         {
-            _db = db;
-        }
-
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Food>> GetFood(int id)
-        {
-            var food = await _db.Foods.FindAsync(id);
-
-            if(food == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(food);
+            _service = service;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Food>>> GetFoodList()
+        public ActionResult<IEnumerable<Food>> GetFood()
         {
-            return await _db.Foods.ToListAsync();
+            var foodList = _service.GetFoodList();
+            return Ok(foodList);
+        }
+
+        [HttpGet("{id}")]
+        public ActionResult<Food> GetFoodId(int id)
+        {
+            var existingFood = _service.GetFoodById(id);
+            if(existingFood == null) return NotFound($"Food by id: {id} vas not found.");
+
+            return Ok(existingFood);
         }
 
         [HttpPost]
-        public async Task<IActionResult> PostFood(Food food)
+        public ActionResult<Food> PostFood(Food food)
         {
-            _db.Foods.Add(food);
-            await _db.SaveChangesAsync();
+            var createdFood = _service.PostFood(food);
+            if(createdFood == null) return BadRequest($"Food data 'Price': {food.Price} is incorect!");
 
-            return Ok(food);
+            return CreatedAtAction(nameof(GetFoodId), new {id = food.Id}, food);
         }
 
-        [HttpDelete]
-        public async Task<IActionResult> DeleteFood(int id)
+        [HttpPut("{id}")]
+        public IActionResult PutFood(int id, Food food)
         {
-            var food = await _db.Foods.FindAsync(id);
-            if(food == null)
-            {
-                return NotFound();
-            }
+            var success = _service.PutFood(id, food);
 
-            _db.Foods.Remove(food);
-            await _db.SaveChangesAsync();
+            if (success == null) return BadRequest();
 
             return NoContent();
         }
 
+        [HttpDelete]
+        public IActionResult DeleteFood(int id) 
+        { 
+            var success = _service.DeleteFood(id);
 
+            if(!success) return NotFound();
+
+            return NoContent();
+        }
     }
 }
