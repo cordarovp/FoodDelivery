@@ -16,24 +16,24 @@ namespace FoodDelivery.Service
 
         public async Task<IEnumerable<Food>> GetFoodList()
         {
-            return await _repository.GetFoodListAsync();
+            return await _repository.GetFoodList();
         }
 
-        public async Task<Food?> GetFoodById(int id)
+        public async Task<Food?> GetFoodByIdAsync(int id)
         {
             return await _repository.GetFoodByIdAsync(id);
         }
 
-        public async Task<Food> PostFood(Food food)
+        public async Task<Food?> PostFoodAsync(Food food)
         {
-            if (food.Price <= 0) throw new ArgumentException("Price is not set correctly!");
+            if (food.Price <= 0) return null;
 
-            await _repository.PostFoodAsync(food);
+            await _repository.AddFoodAsync(food);
             await _repository.SaveChangesAsync();
             return food;
         }
 
-        public async Task<bool> PutFoodAsync(int id, Food food)
+        public async Task<bool> PutFood(int id, Food food)
         {
             var existingFood = await _repository.GetFoodByIdAsync(id);
             if (existingFood == null && id != food.Id)
@@ -41,11 +41,11 @@ namespace FoodDelivery.Service
                 return false;
             }
 
-            _repository.PutFoodAsync(food);
+            _repository.UpdateFood(food);
             return await _repository.SaveChangesAsync();
         }
 
-        public async Task<bool> DeleteFoodAsync(int id)
+        public async Task<bool> DeleteFood(int id)
         {
             var existingFood = await _repository.GetFoodByIdAsync(id);
             if(existingFood == null)
@@ -53,7 +53,7 @@ namespace FoodDelivery.Service
                 return false;
             }
 
-            _repository.DeleteFoodAsync(existingFood);
+            _repository.RemoveFood(existingFood);
             return await _repository.SaveChangesAsync();
         }
     }

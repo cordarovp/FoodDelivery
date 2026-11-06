@@ -13,7 +13,7 @@ namespace FoodDelivery.Repository
             _context = context;
         }
 
-        public async Task<IEnumerable<Food>> GetFoodListAsync()
+        public async Task<IEnumerable<Food>> GetFoodList()
         {
             return await _context.Foods.ToListAsync();
         }
@@ -23,17 +23,17 @@ namespace FoodDelivery.Repository
             return await _context.Foods.FindAsync(id);
         }
 
-        public async Task PostFoodAsync(Food food)
+        public async Task AddFoodAsync(Food food)
         {
             await _context.Foods.AddAsync(food);
         }
 
-        public void PutFoodAsync(Food food)
+        public void UpdateFood(Food food)
         {
             _context.Foods.Update(food);
         }
 
-        public void DeleteFoodAsync(Food food)
+        public void RemoveFood(Food food)
         {
             _context.Foods.Remove(food);
         }

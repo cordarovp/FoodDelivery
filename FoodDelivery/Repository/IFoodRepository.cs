@@ -5,11 +5,11 @@ namespace FoodDelivery.Repository
 {
     public interface IFoodRepository
     {
-        Task<IEnumerable<Food>> GetFoodListAsync();
+        Task<IEnumerable<Food>> GetFoodList();
         Task<Food?> GetFoodByIdAsync(int id);
-        Task PostFoodAsync(Food food);
-        void PutFoodAsync(Food food);
-        void DeleteFoodAsync(Food food);
+        Task AddFoodAsync(Food food);
+        void UpdateFood(Food food);
+        void RemoveFood(Food food);
         Task<bool> SaveChangesAsync();
     }
 }
