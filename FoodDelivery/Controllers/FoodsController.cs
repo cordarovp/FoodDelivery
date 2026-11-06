@@ -43,7 +43,7 @@ namespace FoodDelivery.Controllers
             return CreatedAtAction(nameof(GetFoodId), new {id = food.Id}, food);
         }
 
-        [HttpPut]
+        [HttpPut("{id}")]
         public IActionResult PutFood(int id, Food food)
         {
             var success = _service.PutFood(id, food);

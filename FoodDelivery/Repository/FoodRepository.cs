@@ -21,7 +21,7 @@ namespace FoodDelivery.Repository
 
         public Food? GetFoodById(int id)
         {
-            return _context.Foods.Find(id);
+            return _context.Foods.AsNoTracking().FirstOrDefault(f => f.Id == id);
         }
 
         public void AddFood(Food food)
