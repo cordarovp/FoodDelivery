@@ -19,44 +19,44 @@ namespace FoodDelivery.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Food>>> GetFood()
+        public ActionResult<IEnumerable<Food>> GetFood()
         {
-            var foodList = await _service.GetFoodList();
+            var foodList = _service.GetFoodList();
             return Ok(foodList);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Food>> GetFoodId(int id)
+        public ActionResult<Food> GetFoodId(int id)
         {
-            var existingFood = await _service.GetFoodByIdAsync(id);
+            var existingFood = _service.GetFoodById(id);
             if(existingFood == null) return NotFound($"Food by id: {id} vas not found.");
 
             return Ok(existingFood);
         }
 
         [HttpPost]
-        public async Task<ActionResult<Food>> PostFood(Food food)
+        public ActionResult<Food> PostFood(Food food)
         {
-            var createdFood = await _service.PostFoodAsync(food);
+            var createdFood = _service.PostFood(food);
             if(createdFood == null) return BadRequest($"Food data 'Price': {food.Price} is incorect!");
 
             return CreatedAtAction(nameof(GetFoodId), new {id = food.Id}, food);
         }
 
         [HttpPut]
-        public async Task<IActionResult> PutFood(int id, Food food)
+        public IActionResult PutFood(int id, Food food)
         {
-            var success = await _service.PutFood(id, food);
+            var success = _service.PutFood(id, food);
 
-            if (!success) return BadRequest();
+            if (success == null) return BadRequest();
 
             return NoContent();
         }
 
         [HttpDelete]
-        public async Task<IActionResult> DeleteFood(int id) 
+        public IActionResult DeleteFood(int id) 
         { 
-            var success = await _service.DeleteFood(id);
+            var success = _service.DeleteFood(id);
 
             if(!success) return NotFound();
 

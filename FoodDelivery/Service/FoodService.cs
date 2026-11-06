@@ -14,47 +14,48 @@ namespace FoodDelivery.Service
             _repository = repository;
         }
 
-        public async Task<IEnumerable<Food>> GetFoodList()
+        public IEnumerable<Food> GetFoodList()
         {
-            return await _repository.GetFoodList();
+            return _repository.GetFoodList();
         }
 
-        public async Task<Food?> GetFoodByIdAsync(int id)
+        public Food? GetFoodById(int id)
         {
-            return await _repository.GetFoodByIdAsync(id);
+            return _repository.GetFoodById(id);
         }
 
-        public async Task<Food?> PostFoodAsync(Food food)
+        public Food? PostFood(Food food)
         {
             if (food.Price <= 0) return null;
 
-            await _repository.AddFoodAsync(food);
-            await _repository.SaveChangesAsync();
+            _repository.AddFood(food);
+            _repository.SaveChanges();
             return food;
         }
 
-        public async Task<bool> PutFood(int id, Food food)
+        public Food? PutFood(int id, Food food)
         {
-            var existingFood = await _repository.GetFoodByIdAsync(id);
-            if (existingFood == null && id != food.Id)
+            var existingFood = _repository.GetFoodById(id);
+            if (existingFood == null || id != food.Id)
             {
-                return false;
+                return null;
             }
 
             _repository.UpdateFood(food);
-            return await _repository.SaveChangesAsync();
+            _repository.SaveChanges();
+            return food;
         }
 
-        public async Task<bool> DeleteFood(int id)
+        public bool DeleteFood(int id)
         {
-            var existingFood = await _repository.GetFoodByIdAsync(id);
+            var existingFood = _repository.GetFoodById(id);
             if(existingFood == null)
             {
                 return false;
             }
 
             _repository.RemoveFood(existingFood);
-            return await _repository.SaveChangesAsync();
+            return _repository.SaveChanges();
         }
     }
 }

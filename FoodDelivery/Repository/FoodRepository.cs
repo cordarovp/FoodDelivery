@@ -1,6 +1,7 @@
 ﻿using FoodDelivery.Data;
 using FoodDelivery.Entity;
 using Microsoft.EntityFrameworkCore;
+using System.Collections;
 
 namespace FoodDelivery.Repository
 {
@@ -13,19 +14,19 @@ namespace FoodDelivery.Repository
             _context = context;
         }
 
-        public async Task<IEnumerable<Food>> GetFoodList()
+        public IEnumerable<Food> GetFoodList()
         {
-            return await _context.Foods.ToListAsync();
+            return _context.Foods.ToList();
         }
 
-        public async Task<Food?> GetFoodByIdAsync(int id)
+        public Food? GetFoodById(int id)
         {
-            return await _context.Foods.FindAsync(id);
+            return _context.Foods.Find(id);
         }
 
-        public async Task AddFoodAsync(Food food)
+        public void AddFood(Food food)
         {
-            await _context.Foods.AddAsync(food);
+            _context.Foods.Add(food);
         }
 
         public void UpdateFood(Food food)
@@ -38,9 +39,9 @@ namespace FoodDelivery.Repository
             _context.Foods.Remove(food);
         }
 
-        public async Task<bool> SaveChangesAsync()
+        public bool SaveChanges()
         {
-            return await _context.SaveChangesAsync() > 0;
+            return _context.SaveChanges() > 0;
         }
     }
 }

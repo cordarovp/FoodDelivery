@@ -4,10 +4,10 @@ namespace FoodDelivery.Service
 {
     public interface IFoodService
     {
-        Task<IEnumerable<Food>> GetFoodList();
-        Task<Food?> GetFoodByIdAsync(int id);
-        Task<Food?> PostFoodAsync(Food food);
-        Task<bool> PutFood(int id, Food food);
-        Task<bool> DeleteFood(int id);
+        IEnumerable<Food> GetFoodList();
+        Food? GetFoodById(int id);
+        Food? PostFood(Food food);
+        Food? PutFood(int id, Food food);
+        bool DeleteFood(int id);
     }
 }
