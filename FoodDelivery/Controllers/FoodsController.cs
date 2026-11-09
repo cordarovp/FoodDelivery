@@ -26,7 +26,7 @@ namespace FoodDelivery.Controllers
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Food> GetFoodId(int id)
+        public ActionResult<Food> GetFoodById(int id)
         {
             var existingFood = _service.GetFoodById(id);
             if(existingFood == null) return NotFound($"Food by id: {id} vas not found.");
@@ -40,7 +40,7 @@ namespace FoodDelivery.Controllers
             var createdFood = _service.PostFood(food);
             if(createdFood == null) return BadRequest($"Food data 'Price': {food.Price} is incorect!");
 
-            return CreatedAtAction(nameof(GetFoodId), new {id = food.Id}, food);
+            return CreatedAtAction(nameof(GetFoodById), new {id = food.Id}, food);
         }
 
         [HttpPut("{id}")]
@@ -48,12 +48,12 @@ namespace FoodDelivery.Controllers
         {
             var success = _service.PutFood(id, food);
 
-            if (success == null) return BadRequest();
+            if (success == null) return NotFound();
 
             return NoContent();
         }
 
-        [HttpDelete]
+        [HttpDelete("{id}")]
         public IActionResult DeleteFood(int id) 
         { 
             var success = _service.DeleteFood(id);

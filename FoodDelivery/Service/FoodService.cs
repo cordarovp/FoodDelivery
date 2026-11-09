@@ -26,36 +26,32 @@ namespace FoodDelivery.Service
 
         public Food? PostFood(Food food)
         {
+            //Todo checks and returns of correct type for status codes
             if (food.Price <= 0) return null;
 
             _repository.AddFood(food);
-            _repository.SaveChanges();
             return food;
         }
 
         public Food? PutFood(int id, Food food)
         {
             var existingFood = _repository.GetFoodById(id);
-            if (existingFood == null || id != food.Id)
-            {
-                return null;
-            }
+            //Todo checks and returns of correct type for status codes
+            if (existingFood == null || id != food.Id) return null;
+            if (food.Price <= 0) return null;
 
             _repository.UpdateFood(food);
-            _repository.SaveChanges();
             return food;
         }
 
         public bool DeleteFood(int id)
         {
             var existingFood = _repository.GetFoodById(id);
-            if(existingFood == null)
-            {
-                return false;
-            }
+            //Todo checks and returns of correct type for status codes
+            if (existingFood == null) return false;
 
             _repository.RemoveFood(existingFood);
-            return _repository.SaveChanges();
+            return true;
         }
     }
 }

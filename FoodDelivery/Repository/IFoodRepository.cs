@@ -11,6 +11,5 @@ namespace FoodDelivery.Repository
         void AddFood(Food food);
         void UpdateFood(Food food);
         void RemoveFood(Food food);
-        bool SaveChanges();
     }
 }

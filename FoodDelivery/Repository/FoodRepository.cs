@@ -27,21 +27,19 @@ namespace FoodDelivery.Repository
         public void AddFood(Food food)
         {
             _context.Foods.Add(food);
+            _context.SaveChanges();
         }
 
         public void UpdateFood(Food food)
         {
             _context.Foods.Update(food);
+            _context.SaveChanges();
         }
 
         public void RemoveFood(Food food)
         {
             _context.Foods.Remove(food);
-        }
-
-        public bool SaveChanges()
-        {
-            return _context.SaveChanges() > 0;
+            _context.SaveChanges();
         }
     }
 }
