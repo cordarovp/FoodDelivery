@@ -34,11 +34,6 @@ namespace FoodDelivery.Service
             return userDto;
         }
 
-        public User? GetUserById(int id)
-        {
-            return _repository.GetUserId(id);
-        }
-
         public UserDTO? PostUser(User user)
         {
             //Todo checks and returns of correct type for status codes

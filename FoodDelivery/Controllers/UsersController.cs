@@ -32,16 +32,6 @@ namespace FoodDelivery.Controllers
             return Ok(existingUser);
         }
 
-        [HttpGet("full-view/{id}")]
-        //Todo Authorize
-        public ActionResult<User> GetUserById(int id)
-        {
-            var existingUser = _service.GetUserById(id);
-            if (existingUser == null) return NotFound($"User with id: {id} was not found!");
-
-            return Ok(existingUser);
-        }
-
         [HttpPost]
         public ActionResult<UserDTO> PostUser(User user)
         {
