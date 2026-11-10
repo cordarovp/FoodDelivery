@@ -38,6 +38,8 @@ namespace FoodDelivery.Service
         public ResponseUserDTO? PostUser(RequestUserDTO requestUser)
         {
             //Todo checks and returns of correct type for status codes
+            if (requestUser == null) return null;
+            if (requestUser.Id != 0) return null;
             if (!CheckUsernameAvailability(requestUser)) return null;
 
             var user = MappingUser(requestUser);

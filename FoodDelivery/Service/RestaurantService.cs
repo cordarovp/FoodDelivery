@@ -25,6 +25,9 @@ namespace FoodDelivery.Service
         public Restaurant? PostRestaurant(Restaurant restaurant)
         {
             //Todo checks
+            if (restaurant == null) return null;
+            if (restaurant.Id != 0) return null;
+
             _repository.AddRestaurant(restaurant);
             return restaurant;
         }

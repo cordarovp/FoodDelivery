@@ -27,6 +27,7 @@ namespace FoodDelivery.Service
         public Food? PostFood(Food food)
         {
             //Todo checks and returns of correct type for status codes
+            if (food == null) return null;
             if (food.Price <= 0) return null;
             if (food.Id != 0) return null;
 
