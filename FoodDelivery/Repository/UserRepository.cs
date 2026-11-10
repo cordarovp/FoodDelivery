@@ -40,5 +40,10 @@ namespace FoodDelivery.Repository
             _context.Users.Remove(user);
             _context.SaveChanges();
         }
+
+        public bool CheckUsername(string username)
+        {
+            return _context.Users.Any(u => u.Username.ToLower() == username.ToLower());
+        }
     }
 }

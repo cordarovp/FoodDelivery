@@ -40,7 +40,7 @@ namespace FoodDelivery.Service
             //Todo checks and returns of correct type for status codes
             if (requestUser == null) return null;
             if (requestUser.Id != 0) return null;
-            if (!CheckUsernameAvailability(requestUser)) return null;
+            if (CheckUsernameAvailability(requestUser)) return null;
 
             var user = MappingUser(requestUser);
 
@@ -55,7 +55,7 @@ namespace FoodDelivery.Service
             var existingUser = _repository.GetUserId(id);
             //Todo checks and returns of correct type for status codes
             if (existingUser == null || id != requestUser.Id) return null;
-            if (!CheckUsernameAvailability(requestUser)) return null;
+            if (CheckUsernameAvailability(requestUser)) return null;
 
             var user = MappingUser(requestUser);
 
@@ -104,22 +104,10 @@ namespace FoodDelivery.Service
             return user;
         }
 
-        //This method will return true if the forwarded username is not being used.
+        //This method will return true if the forwarded username IS being used.
         private bool CheckUsernameAvailability(RequestUserDTO updateUser)
         {
-            var usersList = _repository.GetUserList();
-
-            foreach (var existingUser in usersList)
-            {
-                if (existingUser.Username == updateUser.Username)
-                {
-                    if(existingUser.Id == updateUser.Id)
-                        return true;
-                    else
-                        return false;
-                }else continue;
-            }
-            return true;
+            return _repository.CheckUsername(updateUser.Username);
         }
     }
 }

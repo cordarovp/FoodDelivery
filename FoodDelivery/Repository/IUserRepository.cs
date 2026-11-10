@@ -9,5 +9,6 @@ namespace FoodDelivery.Repository
         void AddUser(User user);
         void UpdateUser(User user);
         void RemoveUser(User user);
+        bool CheckUsername(string username);
     }
 }
