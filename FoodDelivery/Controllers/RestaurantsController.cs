@@ -16,7 +16,7 @@ namespace FoodDelivery.Controllers
         }
 
         [HttpGet]
-        public ActionResult<Restaurant> GetRestaurant()
+        public ActionResult<IEnumerable<Restaurant>> GetRestaurant()
         {
             var restaurantsList = _service.GetRestaurantList();
             return Ok(restaurantsList);

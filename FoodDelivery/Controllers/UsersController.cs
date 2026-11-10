@@ -1,6 +1,5 @@
 ﻿using FoodDelivery.Entity;
 using FoodDelivery.Service;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FoodDelivery.Controllers

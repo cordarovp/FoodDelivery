@@ -1,6 +1,4 @@
 ﻿using FoodDelivery.Entity;
-using Microsoft.AspNetCore.Mvc;
-using System.Collections;
 
 namespace FoodDelivery.Repository
 {

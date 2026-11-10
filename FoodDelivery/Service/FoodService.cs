@@ -1,7 +1,5 @@
-﻿using FoodDelivery.Data;
-using FoodDelivery.Entity;
+﻿using FoodDelivery.Entity;
 using FoodDelivery.Repository;
-using Microsoft.IdentityModel.Tokens;
 
 namespace FoodDelivery.Service
 {

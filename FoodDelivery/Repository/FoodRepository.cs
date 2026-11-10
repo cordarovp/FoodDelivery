@@ -1,7 +1,6 @@
 ﻿using FoodDelivery.Data;
 using FoodDelivery.Entity;
 using Microsoft.EntityFrameworkCore;
-using System.Collections;
 
 namespace FoodDelivery.Repository
 {
