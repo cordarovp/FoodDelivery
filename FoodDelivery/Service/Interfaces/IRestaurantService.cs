@@ -1,6 +1,6 @@
 ﻿using FoodDelivery.Entity;
 
-namespace FoodDelivery.Service
+namespace FoodDelivery.Service.Interfaces
 {
     public interface IRestaurantService
     {

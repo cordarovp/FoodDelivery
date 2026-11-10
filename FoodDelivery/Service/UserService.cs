@@ -1,5 +1,6 @@
 ﻿using FoodDelivery.Entity;
-using FoodDelivery.Repository;
+using FoodDelivery.Repository.Interfaces;
+using FoodDelivery.Service.Interfaces;
 
 namespace FoodDelivery.Service
 {
@@ -14,11 +15,11 @@ namespace FoodDelivery.Service
 
         public IEnumerable<ResponseUserDTO> GetUserDTOList()
         {
-            var usersList = _repository.GetUserList();
+            var usersList = _repository.GetAll();
 
             var usersDTOList = new List<ResponseUserDTO>();
             foreach (var user in usersList)
-            { 
+            {
                 var userDto = CreateUserDTO(user);
                 usersDTOList.Add(userDto);
             }
@@ -28,7 +29,7 @@ namespace FoodDelivery.Service
 
         public ResponseUserDTO? GetUserDTOById(int id)
         {
-            var user = _repository.GetUserId(id);
+            var user = _repository.GetById(id);
             if (user == null) return null;
             var userDto = CreateUserDTO(user);
             return userDto;
@@ -43,7 +44,7 @@ namespace FoodDelivery.Service
 
             var user = MappingUser(requestUser);
 
-            _repository.AddUser(user);
+            _repository.Add(user);
             var userDto = CreateUserDTO(user);
 
             return userDto;
@@ -51,26 +52,27 @@ namespace FoodDelivery.Service
 
         public User? PutUser(int id, RequestUserDTO requestUser)
         {
-            var existingUser = _repository.GetUserId(id);
+            var existingUser = _repository.GetById(id);
             //Todo checks and returns of correct type for status codes
             if (existingUser == null || id != requestUser.Id) return null;
             if (CheckUsernameAvailability(requestUser)) return null;
 
             var user = MappingUser(requestUser);
 
-            _repository.UpdateUser(user);
+            _repository.Update(user);
             return user;
         }
 
         public bool DeleteUserint(int id)
         {
-            var existingUser = _repository.GetUserId(id);
+            var existingUser = _repository.GetById(id);
             //Todo checks and returns of correct type for status codes
             if (existingUser == null) return false;
 
-            _repository.RemoveUser(existingUser);
+            _repository.Delete(existingUser);
             return true;
         }
+
 
         private ResponseUserDTO CreateUserDTO(User existingUser)
         {

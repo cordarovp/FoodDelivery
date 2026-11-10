@@ -21,9 +21,5 @@
     <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="10.3.1" />
     <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.14" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Tests\" />
-  </ItemGroup>
-
+	
 </Project>
