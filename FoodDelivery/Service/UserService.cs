@@ -93,12 +93,11 @@ namespace FoodDelivery.Service
                 if (existingUser.Username == updateUser.Username)
                 {
                     if(existingUser.Id == updateUser.Id)
-                    {
                         return true;
-                    }
+                    else
+                        return false;
                 }else continue;
             }
-
             return true;
         }
     }

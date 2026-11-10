@@ -28,6 +28,7 @@ namespace FoodDelivery.Service
         {
             //Todo checks and returns of correct type for status codes
             if (food.Price <= 0) return null;
+            if (food.Id != 0) return null;
 
             _repository.AddFood(food);
             return food;

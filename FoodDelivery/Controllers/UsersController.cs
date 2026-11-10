@@ -17,7 +17,7 @@ namespace FoodDelivery.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<User>> GetUsers()
+        public ActionResult<IEnumerable<UserDTO>> GetUsers()
         {
             var usersList = _service.GetUserDTOList();
             return Ok(usersList);
@@ -61,7 +61,7 @@ namespace FoodDelivery.Controllers
             return NoContent();
         }
 
-        [HttpDelete]
+        [HttpDelete("{id}")]
         //Todo autorizacija
         public IActionResult DeleteUser(int id)
         {

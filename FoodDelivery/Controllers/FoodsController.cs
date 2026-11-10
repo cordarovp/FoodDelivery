@@ -38,7 +38,7 @@ namespace FoodDelivery.Controllers
         public ActionResult<Food> PostFood(Food food)
         {
             var createdFood = _service.PostFood(food);
-            if(createdFood == null) return BadRequest($"Food data 'Price': {food.Price} is incorect!");
+            if(createdFood == null) return BadRequest($"Food data 'Price': {food.Price} is incorect or id was not suppose to be set!");
 
             return CreatedAtAction(nameof(GetFoodById), new {id = food.Id}, food);
         }
