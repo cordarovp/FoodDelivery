@@ -1,6 +1,6 @@
 ﻿namespace FoodDelivery.Entity
 {
-    public class UserDTO
+    public class ResponseUserDTO
     {
         public int Id {  get; set; }
         public required string FullName  { get; set; }

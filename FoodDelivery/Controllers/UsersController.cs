@@ -17,14 +17,14 @@ namespace FoodDelivery.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<UserDTO>> GetUsers()
+        public ActionResult<IEnumerable<ResponseUserDTO>> GetUsers()
         {
             var usersList = _service.GetUserDTOList();
             return Ok(usersList);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<UserDTO> GetUserDTOById(int id)
+        public ActionResult<ResponseUserDTO> GetUserDTOById(int id)
         {
             var existingUser = _service.GetUserDTOById(id);
             if (existingUser == null) return NotFound($"User with id: {id} was not found!");
@@ -33,7 +33,7 @@ namespace FoodDelivery.Controllers
         }
 
         [HttpPost]
-        public ActionResult<UserDTO> PostUser(User user)
+        public ActionResult<ResponseUserDTO> PostUser(RequestUserDTO user)
         {
             var createdUser = _service.PostUser(user);
             if (createdUser == null) return BadRequest();
@@ -43,7 +43,7 @@ namespace FoodDelivery.Controllers
 
         [HttpPut("{id}")]
         //Todo autorizacija
-        public IActionResult PutUser(int id, User user)
+        public IActionResult PutUser(int id, RequestUserDTO user)
         {
             var success = _service.PutUser(id, user);
             if(success == null) return NotFound();

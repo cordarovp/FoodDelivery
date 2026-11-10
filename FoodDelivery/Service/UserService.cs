@@ -1,5 +1,6 @@
 ﻿using FoodDelivery.Entity;
 using FoodDelivery.Repository;
+using System.Globalization;
 
 namespace FoodDelivery.Service
 {
@@ -12,11 +13,11 @@ namespace FoodDelivery.Service
             _repository = repository;
         }
 
-        public IEnumerable<UserDTO> GetUserDTOList()
+        public IEnumerable<ResponseUserDTO> GetUserDTOList()
         {
             var usersList = _repository.GetUserList();
 
-            var usersDTOList = new List<UserDTO>();
+            var usersDTOList = new List<ResponseUserDTO>();
             foreach (var user in usersList)
             { 
                 var userDto = CreateUserDTO(user);
@@ -26,7 +27,7 @@ namespace FoodDelivery.Service
             return usersDTOList;
         }
 
-        public UserDTO? GetUserDTOById(int id)
+        public ResponseUserDTO? GetUserDTOById(int id)
         {
             var user = _repository.GetUserId(id);
             if (user == null) return null;
@@ -34,10 +35,12 @@ namespace FoodDelivery.Service
             return userDto;
         }
 
-        public UserDTO? PostUser(User user)
+        public ResponseUserDTO? PostUser(RequestUserDTO requestUser)
         {
             //Todo checks and returns of correct type for status codes
-            if (!CheckUsernameAvailability(user)) return null;
+            if (!CheckUsernameAvailability(requestUser)) return null;
+
+            var user = MappingUser(requestUser);
 
             _repository.AddUser(user);
             var userDto = CreateUserDTO(user);
@@ -45,12 +48,14 @@ namespace FoodDelivery.Service
             return userDto;
         }
 
-        public User? PutUser(int id, User user)
+        public User? PutUser(int id, RequestUserDTO requestUser)
         {
             var existingUser = _repository.GetUserId(id);
             //Todo checks and returns of correct type for status codes
-            if (existingUser == null || id != user.Id) return null;
-            if (!CheckUsernameAvailability(user)) return null;
+            if (existingUser == null || id != requestUser.Id) return null;
+            if (!CheckUsernameAvailability(requestUser)) return null;
+
+            var user = MappingUser(requestUser);
 
             _repository.UpdateUser(user);
             return user;
@@ -66,9 +71,9 @@ namespace FoodDelivery.Service
             return true;
         }
 
-        private UserDTO CreateUserDTO(User existingUser)
+        private ResponseUserDTO CreateUserDTO(User existingUser)
         {
-            var userDto = new UserDTO
+            var userDto = new ResponseUserDTO
             {
                 Id = existingUser.Id,
                 FullName = existingUser.FirstName + " " + existingUser.LastName,
@@ -80,8 +85,25 @@ namespace FoodDelivery.Service
             return userDto;
         }
 
+        private User MappingUser(RequestUserDTO requestUser)
+        {
+            User user = new User
+            {
+                Id = requestUser.Id,
+                FirstName = requestUser.FirstName,
+                LastName = requestUser.LastName,
+                GeoLat = requestUser.GeoLat,
+                GeoLon = requestUser.GeoLon,
+                Username = requestUser.Username,
+                Password = requestUser.Password,
+                IsAdmin = false
+            };
+
+            return user;
+        }
+
         //This method will return true if the forwarded username is not being used.
-        private bool CheckUsernameAvailability(User updateUser)
+        private bool CheckUsernameAvailability(RequestUserDTO updateUser)
         {
             var usersList = _repository.GetUserList();
 

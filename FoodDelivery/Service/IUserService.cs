@@ -4,10 +4,10 @@ namespace FoodDelivery.Service
 {
     public interface IUserService
     {
-        IEnumerable<UserDTO> GetUserDTOList();
-        UserDTO? GetUserDTOById(int id);
-        UserDTO? PostUser(User user);
-        User? PutUser(int id, User user);
+        IEnumerable<ResponseUserDTO> GetUserDTOList();
+        ResponseUserDTO? GetUserDTOById(int id);
+        ResponseUserDTO? PostUser(RequestUserDTO requestUser);
+        User? PutUser(int id, RequestUserDTO requestUser);
         bool DeleteUserint(int id);
     }
 }
