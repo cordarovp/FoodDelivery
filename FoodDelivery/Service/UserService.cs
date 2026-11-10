@@ -39,13 +39,15 @@ namespace FoodDelivery.Service
             return _repository.GetUserId(id);
         }
 
-        public User? PostUser(User user)
+        public UserDTO? PostUser(User user)
         {
             //Todo checks and returns of correct type for status codes
             if (!CheckUsernameAvailability(user)) return null;
 
             _repository.AddUser(user);
-            return user;
+            var userDto = CreateUserDTO(user);
+
+            return userDto;
         }
 
         public User? PutUser(int id, User user)

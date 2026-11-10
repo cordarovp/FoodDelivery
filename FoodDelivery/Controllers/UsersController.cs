@@ -43,12 +43,12 @@ namespace FoodDelivery.Controllers
         }
 
         [HttpPost]
-        public ActionResult<User> PostUser(User user)
+        public ActionResult<UserDTO> PostUser(User user)
         {
             var createdUser = _service.PostUser(user);
             if (createdUser == null) return BadRequest();
 
-            return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
+            return CreatedAtAction(nameof(GetUserDTOById), new { id = user.Id }, createdUser);
         }
 
         [HttpPut("{id}")]
