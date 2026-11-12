@@ -4,10 +4,10 @@ namespace FoodDelivery.Service.Interfaces
 {
     public interface IFoodService
     {
-        IEnumerable<Food> GetFoodList();
-        Food? GetFoodById(int id);
-        Food? PostFood(Food food);
-        Food? PutFood(int id, Food food);
-        bool DeleteFood(int id);
+        Task<IEnumerable<Food>> GetFoodList();
+        Task<Food?> GetFoodById(int id);
+        Task<Food?> PostFood(Food food);
+        Task<Food?> PutFood(int id, Food food);
+        Task<bool> DeleteFood(int id);
     }
 }

@@ -16,43 +16,43 @@ namespace FoodDelivery.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Restaurant>> GetRestaurant()
+        public async Task<ActionResult<IEnumerable<Restaurant>>> GetRestaurant()
         {
-            var restaurantsList = _service.GetRestaurantList();
+            var restaurantsList = await _service.GetRestaurantList();
             return Ok(restaurantsList);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Restaurant> GetRestaurantById(int id)
+        public async Task<ActionResult<Restaurant>> GetRestaurantById(int id)
         {
-            var existingRestaurant = _service.GetRestaurantById(id);
+            var existingRestaurant = await _service.GetRestaurantById(id);
             if(existingRestaurant == null) return NotFound($"Restaurant by id: {id} was not found!");
 
             return Ok(existingRestaurant);
         }
 
         [HttpPost]
-        public ActionResult<Restaurant> PostRestaurant(Restaurant restaurant)
+        public async Task<ActionResult<Restaurant>> PostRestaurant(Restaurant restaurant)
         {
-            var createdRestaurant = _service.PostRestaurant(restaurant);
+            var createdRestaurant = await _service.PostRestaurant(restaurant);
             if (createdRestaurant == null) return BadRequest();
 
             return CreatedAtAction(nameof(GetRestaurantById), new {id = restaurant.Id}, restaurant);
         }
 
         [HttpPut("{id}")]
-        public IActionResult PutRestaurant(int id, Restaurant restaurant)
+        public async Task<IActionResult> PutRestaurant(int id, Restaurant restaurant)
         {
-            var success = _service.PutRestaurant(id, restaurant);
+            var success = await _service.PutRestaurant(id, restaurant);
             if (success == null) return NotFound();
 
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteRestaurant(int id)
+        public async Task<IActionResult> DeleteRestaurant(int id)
         {
-            var success = _service.DeleteRestaurant(id);
+            var success = await _service.DeleteRestaurant(id);
             if(!success) return NotFound();
 
             return NoContent();

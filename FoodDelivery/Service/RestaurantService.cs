@@ -13,43 +13,43 @@ namespace FoodDelivery.Service
             _repository = repository;
         }
 
-        public IEnumerable<Restaurant> GetRestaurantList()
+        public async Task<IEnumerable<Restaurant>> GetRestaurantList()
         {
-            return _repository.GetAll();
+            return await _repository.GetAll();
         }
 
-        public Restaurant? GetRestaurantById(int id)
+        public async Task<Restaurant?> GetRestaurantById(int id)
         {
-            return _repository.GetById(id);
+            return await _repository.GetById(id);
         }
 
-        public Restaurant? PostRestaurant(Restaurant restaurant)
+        public async Task<Restaurant?> PostRestaurant(Restaurant restaurant)
         {
             //Todo checks
             if (restaurant == null) return null;
             if (restaurant.Id != 0) return null;
 
-            _repository.Add(restaurant);
+            await _repository.Add(restaurant);
             return restaurant;
         }
 
-        public Restaurant? PutRestaurant(int id, Restaurant restaurant)
+        public async Task<Restaurant?> PutRestaurant(int id, Restaurant restaurant)
         {
-            var existingRestaurant = _repository.GetById(id);
+            var existingRestaurant = await _repository.GetById(id);
             //Todo checks and returns of correct type for status codes
             if (existingRestaurant == null || id != restaurant.Id) return null;
 
-            _repository.Update(restaurant);
+            await _repository.Update(restaurant);
             return restaurant;
         }
 
-        public bool DeleteRestaurant(int id)
+        public async Task<bool> DeleteRestaurant(int id)
         {
-            var existingRestaurant = _repository.GetById(id);
+            var existingRestaurant = await _repository.GetById(id);
             //    //Todo checks and returns of correct type for status codes
             if (existingRestaurant == null) return false;
 
-            _repository.Delete(existingRestaurant);
+            await _repository.Delete(existingRestaurant);
             return true;
         }
     }

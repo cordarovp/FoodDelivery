@@ -16,25 +16,25 @@ namespace FoodDelivery.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<ResponseUserDTO>> GetUsers()
+        public async Task<ActionResult<IEnumerable<ResponseUserDTO>>> GetUsers()
         {
-            var usersList = _service.GetUserDTOList();
+            var usersList = await _service.GetUserDTOList();
             return Ok(usersList);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<ResponseUserDTO> GetUserDTOById(int id)
+        public async Task<ActionResult<ResponseUserDTO>> GetUserDTOById(int id)
         {
-            var existingUser = _service.GetUserDTOById(id);
+            var existingUser = await _service.GetUserDTOById(id);
             if (existingUser == null) return NotFound($"User with id: {id} was not found!");
 
             return Ok(existingUser);
         }
 
         [HttpPost]
-        public ActionResult<ResponseUserDTO> PostUser(RequestUserDTO user)
+        public async Task<ActionResult<ResponseUserDTO>> PostUser(RequestUserDTO user)
         {
-            var createdUser = _service.PostUser(user);
+            var createdUser = await _service.PostUser(user);
             if (createdUser == null) return BadRequest();
 
             return CreatedAtAction(nameof(GetUserDTOById), new { id = user.Id }, createdUser);
@@ -42,9 +42,9 @@ namespace FoodDelivery.Controllers
 
         [HttpPut("{id}")]
         //Todo autorizacija
-        public IActionResult PutUser(int id, RequestUserDTO user)
+        public async Task<IActionResult> PutUser(int id, RequestUserDTO user)
         {
-            var success = _service.PutUser(id, user);
+            var success = await _service.PutUser(id, user);
             if(success == null) return NotFound();
 
             return NoContent();
@@ -52,9 +52,9 @@ namespace FoodDelivery.Controllers
 
         [HttpDelete("{id}")]
         //Todo autorizacija
-        public IActionResult DeleteUser(int id)
+        public async Task<IActionResult> DeleteUser(int id)
         {
-            var success = _service.DeleteUserint(id);
+            var success = await _service.DeleteUserint(id);
 
             if(!success) return NotFound();
 

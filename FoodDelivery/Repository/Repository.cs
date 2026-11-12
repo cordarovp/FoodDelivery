@@ -18,32 +18,33 @@ namespace FoodDelivery.Repository
             _dbSet = context.Set<TEntity>();
         }
 
-        public IEnumerable<TEntity> GetAll()
+        public async Task<IEnumerable<TEntity>> GetAll()
         {
-            return _dbSet.AsNoTracking().ToList();
+            return await _dbSet.AsNoTracking().ToListAsync();
         }
-        public TEntity? GetById(int id)
+        public async Task<TEntity?> GetById(int id)
         {
-            return _dbSet.AsNoTracking().FirstOrDefault(t => t.Id.Equals(id));
+            return await _dbSet.AsNoTracking().FirstOrDefaultAsync(t => t.Id.Equals(id));
         }
-        public void Add(TEntity entetiy)
+        public async Task<TEntity> Add(TEntity entity)
         {
-            _dbSet.Add(entetiy);
-            Save();
+            await _dbSet.AddAsync(entity);
+            await Save();
+            return entity;
         }
-        public void Update(TEntity entetiy)
+        public async Task Update(TEntity entity)
         {
-            _dbSet.Update(entetiy);
-            Save();
+            _dbSet.Update(entity);
+            await Save();
         }
-        public void Delete(TEntity entetiy)
+        public async Task Delete(TEntity entity)
         {
-            _dbSet.Remove(entetiy);
-            Save();
+            _dbSet.Remove(entity);
+            await Save();
         }
-        public void Save()
+        public async Task Save()
         {
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
     }
 }

@@ -13,9 +13,9 @@ namespace FoodDelivery.Service
             _repository = repository;
         }
 
-        public IEnumerable<ResponseUserDTO> GetUserDTOList()
+        public async Task<IEnumerable<ResponseUserDTO>> GetUserDTOList()
         {
-            var usersList = _repository.GetAll();
+            var usersList = await _repository.GetAll();
 
             var usersDTOList = new List<ResponseUserDTO>();
             foreach (var user in usersList)
@@ -27,49 +27,50 @@ namespace FoodDelivery.Service
             return usersDTOList;
         }
 
-        public ResponseUserDTO? GetUserDTOById(int id)
+        public async Task<ResponseUserDTO?> GetUserDTOById(int id)
         {
-            var user = _repository.GetById(id);
+            var user = await _repository.GetById(id);
             if (user == null) return null;
             var userDto = CreateUserDTO(user);
             return userDto;
         }
 
-        public ResponseUserDTO? PostUser(RequestUserDTO requestUser)
+        public async Task<ResponseUserDTO?> PostUser(RequestUserDTO requestUser)
         {
             //Todo checks and returns of correct type for status codes
             if (requestUser == null) return null;
             if (requestUser.Id != 0) return null;
-            if (CheckUsernameAvailability(requestUser)) return null;
+            if (await CheckUsernameAvailability(requestUser)) return null;
 
             var user = MappingUser(requestUser);
 
-            _repository.Add(user);
+            await _repository.Add(user);
             var userDto = CreateUserDTO(user);
 
             return userDto;
         }
 
-        public User? PutUser(int id, RequestUserDTO requestUser)
+        public async Task<ResponseUserDTO?> PutUser(int id, RequestUserDTO requestUser)
         {
-            var existingUser = _repository.GetById(id);
+            var existingUser = await _repository.GetById(id);
             //Todo checks and returns of correct type for status codes
             if (existingUser == null || id != requestUser.Id) return null;
-            if (CheckUsernameAvailability(requestUser)) return null;
+            if (await CheckUsernameAvailability(requestUser)) return null;
 
             var user = MappingUser(requestUser);
+            await _repository.Update(user);
 
-            _repository.Update(user);
-            return user;
+            var responseUser = CreateUserDTO(user);
+            return responseUser;
         }
 
-        public bool DeleteUserint(int id)
+        public async Task<bool> DeleteUserint(int id)
         {
-            var existingUser = _repository.GetById(id);
+            var existingUser = await _repository.GetById(id);
             //Todo checks and returns of correct type for status codes
             if (existingUser == null) return false;
 
-            _repository.Delete(existingUser);
+            await _repository.Delete(existingUser);
             return true;
         }
 
@@ -88,6 +89,7 @@ namespace FoodDelivery.Service
             return userDto;
         }
 
+        //Todo IsAdmin set and autharization
         private User MappingUser(RequestUserDTO requestUser)
         {
             User user = new User
@@ -106,9 +108,9 @@ namespace FoodDelivery.Service
         }
 
         //This method will return true if the forwarded username IS being used.
-        private bool CheckUsernameAvailability(RequestUserDTO updateUser)
+        private async Task<bool> CheckUsernameAvailability(RequestUserDTO updateUser)
         {
-            return _repository.CheckUsername(updateUser.Username);
+            return await _repository.CheckUsername(updateUser.Username);
         }
     }
 }

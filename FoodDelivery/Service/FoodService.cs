@@ -13,44 +13,44 @@ namespace FoodDelivery.Service
             _repository = repository;
         }
 
-        public IEnumerable<Food> GetFoodList()
+        public async Task<IEnumerable<Food>> GetFoodList()
         {
-            return _repository.GetAll();
+            return await _repository.GetAll();
         }
 
-        public Food? GetFoodById(int id)
+        public async Task<Food?> GetFoodById(int id)
         {
-            return _repository.GetById(id);
+            return await _repository.GetById(id);
         }
 
-        public Food? PostFood(Food food)
+        public async Task<Food?> PostFood(Food food)
         {
             if (food == null) return null;
             if (food.Price <= 0) return null;
             if (food.Id != 0) return null;
 
-            _repository.Add(food);
+            await _repository.Add(food);
             return food;
         }
 
-        public Food? PutFood(int id, Food food)
+        public async Task<Food?> PutFood(int id, Food food)
         {
-            var existingFood = _repository.GetById(id);
+            var existingFood = await _repository.GetById(id);
             //Todo checks and returns of correct type for status codes
             if (existingFood == null || id != food.Id) return null;
             if (food.Price <= 0) return null;
 
-            _repository.Update(food);
+            await _repository.Update(food);
             return food;
         }
 
-        public bool DeleteFood(int id)
+        public async Task<bool> DeleteFood(int id)
         {
-            var existingFood = _repository.GetById(id);
+            var existingFood = await _repository.GetById(id);
             //Todo checks and returns of correct type for status codes
             if (existingFood == null) return false;
 
-            _repository.Delete(existingFood);
+            await _repository.Delete(existingFood);
             return true;
         }
     }

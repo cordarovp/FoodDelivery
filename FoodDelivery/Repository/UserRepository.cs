@@ -10,9 +10,9 @@ namespace FoodDelivery.Repository
         {
         }
 
-        public bool CheckUsername(string username)
+        public async Task<bool> CheckUsername(string username)
         {
-            return _dbSet.Any(u => u.Username.ToLower() == username.ToLower());
+            return _dbSet.Any(u => u.Username.Equals(username));
         }
     }
 }

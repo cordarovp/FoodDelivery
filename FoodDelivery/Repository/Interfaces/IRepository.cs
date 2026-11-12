@@ -6,11 +6,11 @@ namespace FoodDelivery.Repository.Interfaces
         where TKey : IEquatable<TKey>
         where TEntity : class, IEntity<TKey>
     {
-        IEnumerable<TEntity> GetAll();
-        TEntity? GetById(int id);
-        void Add(TEntity entetiy);
-        void Update(TEntity entetiy);
-        void Delete(TEntity entetiy);
-        void Save();
+        Task<IEnumerable<TEntity>> GetAll();
+        Task<TEntity?> GetById(int id);
+        Task<TEntity> Add(TEntity entity);
+        Task Update(TEntity entity);
+        Task Delete(TEntity entity);
+        Task Save();
     }
 }
