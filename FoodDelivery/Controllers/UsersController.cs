@@ -1,4 +1,4 @@
-﻿using FoodDelivery.Entity;
+﻿using FoodDelivery.DTO;
 using FoodDelivery.Service.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -37,7 +37,7 @@ namespace FoodDelivery.Controllers
             var createdUser = await _service.PostUser(user);
             if (createdUser == null) return BadRequest();
 
-            return CreatedAtAction(nameof(GetUserDTOById), new { id = user.Id }, createdUser);
+            return CreatedAtAction(nameof(GetUserDTOById), new { id = createdUser.Id }, createdUser);
         }
 
         [HttpPut("{id}")]
@@ -45,7 +45,7 @@ namespace FoodDelivery.Controllers
         public async Task<IActionResult> PutUser(int id, RequestUserDTO user)
         {
             var success = await _service.PutUser(id, user);
-            if(success == null) return NotFound();
+            if (success == null) return NotFound();
 
             return NoContent();
         }
@@ -56,7 +56,7 @@ namespace FoodDelivery.Controllers
         {
             var success = await _service.DeleteUserint(id);
 
-            if(!success) return NotFound();
+            if (!success) return NotFound();
 
             return NoContent();
         }

@@ -22,7 +22,7 @@ namespace FoodDelivery.Repository
         {
             return await _dbSet.AsNoTracking().ToListAsync();
         }
-        public async Task<TEntity?> GetById(int id)
+        public async Task<TEntity?> GetById(TKey id)
         {
             return await _dbSet.AsNoTracking().FirstOrDefaultAsync(t => t.Id.Equals(id));
         }

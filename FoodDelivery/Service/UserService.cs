@@ -1,4 +1,5 @@
-﻿using FoodDelivery.Entity;
+﻿using FoodDelivery.DTO;
+using FoodDelivery.Entity;
 using FoodDelivery.Repository.Interfaces;
 using FoodDelivery.Service.Interfaces;
 
@@ -39,10 +40,9 @@ namespace FoodDelivery.Service
         {
             //Todo checks and returns of correct type for status codes
             if (requestUser == null) return null;
-            if (requestUser.Id != 0) return null;
             if (await CheckUsernameAvailability(requestUser)) return null;
 
-            var user = MappingUser(requestUser);
+            var user = MappingUser(0, requestUser);
 
             await _repository.Add(user);
             var userDto = CreateUserDTO(user);
@@ -54,10 +54,10 @@ namespace FoodDelivery.Service
         {
             var existingUser = await _repository.GetById(id);
             //Todo checks and returns of correct type for status codes
-            if (existingUser == null || id != requestUser.Id) return null;
+            if (existingUser == null) return null;
             if (await CheckUsernameAvailability(requestUser)) return null;
 
-            var user = MappingUser(requestUser);
+            var user = MappingUser(id, requestUser);
             await _repository.Update(user);
 
             var responseUser = CreateUserDTO(user);
@@ -90,11 +90,11 @@ namespace FoodDelivery.Service
         }
 
         //Todo IsAdmin set and autharization
-        private User MappingUser(RequestUserDTO requestUser)
+        private User MappingUser(int id, RequestUserDTO requestUser)
         {
             User user = new User
             {
-                Id = requestUser.Id,
+                Id = id,
                 FirstName = requestUser.FirstName,
                 LastName = requestUser.LastName,
                 GeoLat = requestUser.GeoLat,

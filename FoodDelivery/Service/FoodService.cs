@@ -37,7 +37,8 @@ namespace FoodDelivery.Service
         {
             var existingFood = await _repository.GetById(id);
             //Todo checks and returns of correct type for status codes
-            if (existingFood == null || id != food.Id) return null;
+            if (existingFood == null) return null;
+            if (food.Id != 0) return null;
             if (food.Price <= 0) return null;
 
             await _repository.Update(food);

@@ -1,4 +1,4 @@
-﻿namespace FoodDelivery.Entity
+﻿namespace FoodDelivery.DTO
 {
     public class ResponseUserDTO
     {

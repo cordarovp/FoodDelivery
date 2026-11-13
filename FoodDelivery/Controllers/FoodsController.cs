@@ -26,18 +26,18 @@ namespace FoodDelivery.Controllers
         public async Task<ActionResult<Food>> GetFoodById(int id)
         {
             var existingFood = await _service.GetFoodById(id);
-            if(existingFood == null) return NotFound($"Food by id: {id} was not found.");
+            if (existingFood == null) return NotFound($"Food by id: {id} was not found.");
 
             return Ok(existingFood);
         }
 
         [HttpPost]
-        public async  Task<ActionResult<Food>> PostFood(Food food)
+        public async Task<ActionResult<Food>> PostFood(Food food)
         {
             var createdFood = await _service.PostFood(food);
-            if(createdFood == null) return BadRequest($"Food data 'Price': {food.Price} is incorect or id was not suppose to be set!");
+            if (createdFood == null) return BadRequest($"Food data 'Price': {food.Price} is incorect or id was not suppose to be set!");
 
-            return CreatedAtAction(nameof(GetFoodById), new {id = food.Id}, food);
+            return CreatedAtAction(nameof(GetFoodById), new { id = food.Id }, food);
         }
 
         [HttpPut("{id}")]
@@ -51,11 +51,11 @@ namespace FoodDelivery.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteFood(int id) 
-        { 
+        public async Task<IActionResult> DeleteFood(int id)
+        {
             var success = await _service.DeleteFood(id);
 
-            if(!success) return NotFound();
+            if (!success) return NotFound();
 
             return NoContent();
         }

@@ -1,6 +1,7 @@
 ﻿using FoodDelivery.Data;
 using FoodDelivery.Entity;
 using FoodDelivery.Repository.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace FoodDelivery.Repository
 {
@@ -12,7 +13,7 @@ namespace FoodDelivery.Repository
 
         public async Task<bool> CheckUsername(string username)
         {
-            return _dbSet.Any(u => u.Username.Equals(username));
+            return await _dbSet.AnyAsync(u => u.Username.Equals(username));
         }
     }
 }

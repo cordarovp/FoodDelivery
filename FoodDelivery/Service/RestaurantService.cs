@@ -7,7 +7,7 @@ namespace FoodDelivery.Service
     public class RestaurantService : IRestaurantService
     {
         private readonly IRepository<int, Restaurant> _repository;
-        
+
         public RestaurantService(IRepository<int, Restaurant> repository)
         {
             _repository = repository;
@@ -37,7 +37,8 @@ namespace FoodDelivery.Service
         {
             var existingRestaurant = await _repository.GetById(id);
             //Todo checks and returns of correct type for status codes
-            if (existingRestaurant == null || id != restaurant.Id) return null;
+            if (existingRestaurant == null) return null;
+            if (restaurant.Id != 0) return null;
 
             await _repository.Update(restaurant);
             return restaurant;
@@ -46,7 +47,7 @@ namespace FoodDelivery.Service
         public async Task<bool> DeleteRestaurant(int id)
         {
             var existingRestaurant = await _repository.GetById(id);
-            //    //Todo checks and returns of correct type for status codes
+            //Todo checks and returns of correct type for status codes
             if (existingRestaurant == null) return false;
 
             await _repository.Delete(existingRestaurant);

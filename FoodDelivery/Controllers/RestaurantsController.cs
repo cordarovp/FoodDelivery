@@ -26,7 +26,7 @@ namespace FoodDelivery.Controllers
         public async Task<ActionResult<Restaurant>> GetRestaurantById(int id)
         {
             var existingRestaurant = await _service.GetRestaurantById(id);
-            if(existingRestaurant == null) return NotFound($"Restaurant by id: {id} was not found!");
+            if (existingRestaurant == null) return NotFound($"Restaurant by id: {id} was not found!");
 
             return Ok(existingRestaurant);
         }
@@ -37,7 +37,7 @@ namespace FoodDelivery.Controllers
             var createdRestaurant = await _service.PostRestaurant(restaurant);
             if (createdRestaurant == null) return BadRequest();
 
-            return CreatedAtAction(nameof(GetRestaurantById), new {id = restaurant.Id}, restaurant);
+            return CreatedAtAction(nameof(GetRestaurantById), new { id = restaurant.Id }, restaurant);
         }
 
         [HttpPut("{id}")]
@@ -53,7 +53,7 @@ namespace FoodDelivery.Controllers
         public async Task<IActionResult> DeleteRestaurant(int id)
         {
             var success = await _service.DeleteRestaurant(id);
-            if(!success) return NotFound();
+            if (!success) return NotFound();
 
             return NoContent();
         }
