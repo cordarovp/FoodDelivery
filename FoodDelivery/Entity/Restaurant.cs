@@ -2,7 +2,7 @@
 
 namespace FoodDelivery.Entity
 {
-    public class Restaurant
+    public class Restaurant : IEntity<int>
     {
         public int Id { get; set; }
         [Required(ErrorMessage = "Requires latidude of Restaurant!")]

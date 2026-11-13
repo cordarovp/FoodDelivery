@@ -1,6 +1,5 @@
-﻿using FoodDelivery.Entity;
-using FoodDelivery.Service;
-using Microsoft.AspNetCore.Http;
+﻿using FoodDelivery.DTO;
+using FoodDelivery.Service.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FoodDelivery.Controllers
@@ -17,57 +16,47 @@ namespace FoodDelivery.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<UserDTO>> GetUsers()
+        public async Task<ActionResult<IEnumerable<ResponseUserDTO>>> GetUsers()
         {
-            var usersList = _service.GetUserDTOList();
+            var usersList = await _service.GetUserDTOList();
             return Ok(usersList);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<UserDTO> GetUserDTOById(int id)
+        public async Task<ActionResult<ResponseUserDTO>> GetUserDTOById(int id)
         {
-            var existingUser = _service.GetUserDTOById(id);
-            if (existingUser == null) return NotFound($"User with id: {id} was not found!");
-
-            return Ok(existingUser);
-        }
-
-        [HttpGet("full-view/{id}")]
-        //Todo Authorize
-        public ActionResult<User> GetUserById(int id)
-        {
-            var existingUser = _service.GetUserById(id);
+            var existingUser = await _service.GetUserDTOById(id);
             if (existingUser == null) return NotFound($"User with id: {id} was not found!");
 
             return Ok(existingUser);
         }
 
         [HttpPost]
-        public ActionResult<User> PostUser(User user)
+        public async Task<ActionResult<ResponseUserDTO>> PostUser(RequestUserDTO user)
         {
-            var createdUser = _service.PostUser(user);
+            var createdUser = await _service.PostUser(user);
             if (createdUser == null) return BadRequest();
 
-            return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
+            return CreatedAtAction(nameof(GetUserDTOById), new { id = createdUser.Id }, createdUser);
         }
 
         [HttpPut("{id}")]
         //Todo autorizacija
-        public IActionResult PutUser(int id, User user)
+        public async Task<IActionResult> PutUser(int id, RequestUserDTO user)
         {
-            var success = _service.PutUser(id, user);
-            if(success == null) return NotFound();
+            var success = await _service.PutUser(id, user);
+            if (success == null) return NotFound();
 
             return NoContent();
         }
 
         [HttpDelete("{id}")]
         //Todo autorizacija
-        public IActionResult DeleteUser(int id)
+        public async Task<IActionResult> DeleteUser(int id)
         {
-            var success = _service.DeleteUserint(id);
+            var success = await _service.DeleteUserint(id);
 
-            if(!success) return NotFound();
+            if (!success) return NotFound();
 
             return NoContent();
         }

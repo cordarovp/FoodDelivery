@@ -1,44 +1,19 @@
 ﻿using FoodDelivery.Data;
 using FoodDelivery.Entity;
+using FoodDelivery.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace FoodDelivery.Repository
 {
-    public class UserRepository : IUserRepository
+    public class UserRepository : Repository<int, User>, IUserRepository
     {
-        private readonly FoodDeliveryDbContext _context;
-
-        public UserRepository(FoodDeliveryDbContext context)
+        public UserRepository(FoodDeliveryDbContext context) : base(context)
         {
-            _context = context;
         }
 
-        public IEnumerable<User> GetUserList()
+        public async Task<bool> CheckUsername(string username)
         {
-            return _context.Users.AsNoTracking().ToList();
-        }
-
-        public User? GetUserId(int id)
-        {
-            return _context.Users.AsNoTracking().FirstOrDefault(u => u.Id == id);
-        }
-
-        public void AddUser(User user)
-        {
-            _context.Users.Add(user);
-            _context.SaveChanges();
-        }
-
-        public void UpdateUser(User user)
-        {
-            _context.Users.Update(user);
-            _context.SaveChanges();
-        }
-
-        public void RemoveUser(User user)
-        {
-            _context.Users.Remove(user);
-            _context.SaveChanges();
+            return await _dbSet.AnyAsync(u => u.Username.Equals(username));
         }
     }
 }

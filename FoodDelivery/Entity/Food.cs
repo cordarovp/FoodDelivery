@@ -1,10 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FoodDelivery.Entity
 {
-    public class Food
+    public class Food : IEntity<int>
     {
         public int Id { get; set; }
         [Required(ErrorMessage = "Food must have a name!")]

@@ -1,11 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FoodDelivery.Entity
 {
     [Index(nameof(Username), IsUnique = true)]
-    public class User
+    public class User : IEntity<int>
     {
         public int Id { get; set; }
         [MaxLength(60)]

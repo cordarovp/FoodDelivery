@@ -1,6 +1,8 @@
 using FoodDelivery.Data;
 using FoodDelivery.Repository;
+using FoodDelivery.Repository.Interfaces;
 using FoodDelivery.Service;
+using FoodDelivery.Service.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace FoodDelivery
@@ -17,12 +19,11 @@ namespace FoodDelivery
             // Add services to the container.
 
             builder.Services.AddControllers();
-            builder.Services.AddScoped<IFoodRepository, FoodRepository>();
-            builder.Services.AddScoped<IFoodService, FoodService>();
+            builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IUserService, UserService>();
-            builder.Services.AddScoped<IRestaurantRepository, RestaurantRepository>();
             builder.Services.AddScoped<IRestaurantService, RestaurantService>();
+            builder.Services.AddScoped<IFoodService, FoodService>();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
 
