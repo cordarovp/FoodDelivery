@@ -11,9 +11,9 @@ namespace FoodDelivery.Repository
         {
         }
 
-        public async Task<bool> CheckUsername(string username)
+        public async Task<User?> CheckUsername(string username)
         {
-            return await _dbSet.AnyAsync(u => u.Username.Equals(username));
+            return await _dbSet.AsNoTracking().FirstOrDefaultAsync(u => u.Username.Equals(username));
         }
     }
 }

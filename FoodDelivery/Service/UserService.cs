@@ -1,5 +1,6 @@
-﻿using FoodDelivery.DTO;
+﻿using FoodDelivery.DTO.User;
 using FoodDelivery.Entity;
+using FoodDelivery.Reply;
 using FoodDelivery.Repository.Interfaces;
 using FoodDelivery.Service.Interfaces;
 
@@ -28,50 +29,45 @@ namespace FoodDelivery.Service
             return usersDTOList;
         }
 
-        public async Task<ResponseUserDTO?> GetUserDTOById(int id)
+        public async Task<Reply<ResponseUserDTO>> GetUserDTOById(int id)
         {
             var user = await _repository.GetById(id);
-            if (user == null) return null;
+            if (user == null) return Reply<ResponseUserDTO>.NotFoundError($"User with id: '{id}' was not found!");
             var userDto = CreateUserDTO(user);
-            return userDto;
+            return Reply<ResponseUserDTO>.Success(userDto);
         }
 
-        public async Task<ResponseUserDTO?> PostUser(RequestUserDTO requestUser)
+        public async Task<Reply<ResponseUserDTO>> PostUser(RequestUserDTO requestUser)
         {
-            //Todo checks and returns of correct type for status codes
-            if (requestUser == null) return null;
-            if (await CheckUsernameAvailability(requestUser)) return null;
+            if (requestUser == null) return Reply<ResponseUserDTO>.ValidationError("User was not forwarded!");
+            if (await IsUsernameTakenAsync(0, requestUser)) return Reply<ResponseUserDTO>.ValidationError($"User with username: '{requestUser.Username}' already exists!");
 
             var user = MappingUser(0, requestUser);
-
             await _repository.Add(user);
-            var userDto = CreateUserDTO(user);
 
-            return userDto;
+            var userDto = CreateUserDTO(user);
+            return Reply<ResponseUserDTO>.Success(userDto);
         }
 
-        public async Task<ResponseUserDTO?> PutUser(int id, RequestUserDTO requestUser)
+        public async Task<Reply<bool>> PutUser(int id, RequestUserDTO requestUser)
         {
             var existingUser = await _repository.GetById(id);
-            //Todo checks and returns of correct type for status codes
-            if (existingUser == null) return null;
-            if (await CheckUsernameAvailability(requestUser)) return null;
+
+            if (existingUser == null) return Reply<bool>.NotFoundError($"User with id: {id} was not found!");
+            if (await IsUsernameTakenAsync(id, requestUser)) return Reply<bool>.ValidationError($"User with username: '{requestUser.Username}' already exists!");
 
             var user = MappingUser(id, requestUser);
             await _repository.Update(user);
-
-            var responseUser = CreateUserDTO(user);
-            return responseUser;
+            return Reply<bool>.Success(true);
         }
 
-        public async Task<bool> DeleteUserint(int id)
+        public async Task<Reply<bool>> DeleteUser(int id)
         {
             var existingUser = await _repository.GetById(id);
-            //Todo checks and returns of correct type for status codes
-            if (existingUser == null) return false;
+            if (existingUser == null) return Reply<bool>.NotFoundError($"Food with id: {id} was not found!");
 
             await _repository.Delete(existingUser);
-            return true;
+            return Reply<bool>.Success(true);
         }
 
 
@@ -107,10 +103,12 @@ namespace FoodDelivery.Service
             return user;
         }
 
-        //This method will return true if the forwarded username IS being used.
-        private async Task<bool> CheckUsernameAvailability(RequestUserDTO updateUser)
+        private async Task<bool> IsUsernameTakenAsync(int id, RequestUserDTO updateUser)
         {
-            return await _repository.CheckUsername(updateUser.Username);
+            var user =  await _repository.CheckUsername(updateUser.Username);
+            if (user == null) return false;
+            if (user.Id.Equals(id)) return false;
+            else return true;
         }
     }
 }

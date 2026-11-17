@@ -1,4 +1,4 @@
-﻿using FoodDelivery.DTO;
+﻿using FoodDelivery.DTO.User;
 using FoodDelivery.Service.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,18 +26,21 @@ namespace FoodDelivery.Controllers
         public async Task<ActionResult<ResponseUserDTO>> GetUserDTOById(int id)
         {
             var existingUser = await _service.GetUserDTOById(id);
-            if (existingUser == null) return NotFound($"User with id: {id} was not found!");
 
-            return Ok(existingUser);
+            if (existingUser.IsFailure)
+                return StatusCode(existingUser.Error!.StatusCode, existingUser.Error);
+
+            return Ok(existingUser.Value);
         }
 
         [HttpPost]
         public async Task<ActionResult<ResponseUserDTO>> PostUser(RequestUserDTO user)
         {
             var createdUser = await _service.PostUser(user);
-            if (createdUser == null) return BadRequest();
+            if (createdUser.IsFailure)
+                return StatusCode(createdUser.Error!.StatusCode, createdUser.Error);
 
-            return CreatedAtAction(nameof(GetUserDTOById), new { id = createdUser.Id }, createdUser);
+            return CreatedAtAction(nameof(GetUserDTOById), new { id = createdUser.Value!.Id }, createdUser.Value);
         }
 
         [HttpPut("{id}")]
@@ -45,7 +48,8 @@ namespace FoodDelivery.Controllers
         public async Task<IActionResult> PutUser(int id, RequestUserDTO user)
         {
             var success = await _service.PutUser(id, user);
-            if (success == null) return NotFound();
+            if (success.IsFailure)
+                return StatusCode(success.Error!.StatusCode, success.Error);
 
             return NoContent();
         }
@@ -54,9 +58,9 @@ namespace FoodDelivery.Controllers
         //Todo autorizacija
         public async Task<IActionResult> DeleteUser(int id)
         {
-            var success = await _service.DeleteUserint(id);
-
-            if (!success) return NotFound();
+            var success = await _service.DeleteUser(id);
+            if (success.IsFailure)
+                return StatusCode(success.Error!.StatusCode, success.Error);
 
             return NoContent();
         }

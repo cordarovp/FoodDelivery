@@ -1,4 +1,5 @@
-﻿using FoodDelivery.Entity;
+﻿using FoodDelivery.DTO.Restaurant;
+using FoodDelivery.Entity;
 using FoodDelivery.Service.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,35 +17,38 @@ namespace FoodDelivery.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Restaurant>>> GetRestaurant()
+        public async Task<ActionResult<IEnumerable<ResponseRestaurantDTO>>> GetRestaurant()
         {
             var restaurantsList = await _service.GetRestaurantList();
             return Ok(restaurantsList);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Restaurant>> GetRestaurantById(int id)
+        public async Task<ActionResult<ResponseRestaurantDTO>> GetRestaurantById(int id)
         {
             var existingRestaurant = await _service.GetRestaurantById(id);
-            if (existingRestaurant == null) return NotFound($"Restaurant by id: {id} was not found!");
+            if (existingRestaurant.IsFailure)
+                return StatusCode(existingRestaurant.Error!.StatusCode, existingRestaurant.Error);
 
-            return Ok(existingRestaurant);
+            return Ok(existingRestaurant.Value);
         }
 
         [HttpPost]
-        public async Task<ActionResult<Restaurant>> PostRestaurant(Restaurant restaurant)
+        public async Task<ActionResult<ResponseRestaurantDTO>> PostRestaurant(RequestRestaurantDTO restaurant)
         {
             var createdRestaurant = await _service.PostRestaurant(restaurant);
-            if (createdRestaurant == null) return BadRequest();
+            if (createdRestaurant.IsFailure) 
+                return StatusCode(createdRestaurant.Error!.StatusCode, createdRestaurant.Error);
 
-            return CreatedAtAction(nameof(GetRestaurantById), new { id = restaurant.Id }, restaurant);
+            return CreatedAtAction(nameof(GetRestaurantById), new { id = createdRestaurant.Value!.Id }, createdRestaurant.Value);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutRestaurant(int id, Restaurant restaurant)
+        public async Task<IActionResult> PutRestaurant(int id, RequestRestaurantDTO restaurant)
         {
             var success = await _service.PutRestaurant(id, restaurant);
-            if (success == null) return NotFound();
+            if (success.IsFailure) 
+                return StatusCode(success.Error!.StatusCode, success.Error);
 
             return NoContent();
         }
@@ -53,7 +57,8 @@ namespace FoodDelivery.Controllers
         public async Task<IActionResult> DeleteRestaurant(int id)
         {
             var success = await _service.DeleteRestaurant(id);
-            if (!success) return NotFound();
+            if (success.IsFailure) 
+                return StatusCode(success.Error!.StatusCode, success.Error);
 
             return NoContent();
         }

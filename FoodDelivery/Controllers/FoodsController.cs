@@ -1,4 +1,5 @@
-﻿using FoodDelivery.Entity;
+﻿using FoodDelivery.DTO.Food;
+using FoodDelivery.Entity;
 using FoodDelivery.Service.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,36 +17,40 @@ namespace FoodDelivery.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Food>>> GetFood()
+        public async Task<ActionResult<IEnumerable<ResponseFoodDTO>>> GetFood()
         {
             var foodList = await _service.GetFoodList();
             return Ok(foodList);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Food>> GetFoodById(int id)
+        public async Task<ActionResult<ResponseFoodDTO>> GetFoodById(int id)
         {
             var existingFood = await _service.GetFoodById(id);
-            if (existingFood == null) return NotFound($"Food by id: {id} was not found.");
 
-            return Ok(existingFood);
+            if (existingFood.IsFailure)
+                return StatusCode(existingFood.Error!.StatusCode, existingFood.Error);
+
+            return Ok(existingFood.Value);
         }
 
         [HttpPost]
-        public async Task<ActionResult<Food>> PostFood(Food food)
+        public async Task<ActionResult<ResponseFoodDTO>> PostFood(RequestFoodDTO requestFood)
         {
-            var createdFood = await _service.PostFood(food);
-            if (createdFood == null) return BadRequest($"Food data 'Price': {food.Price} is incorect or id was not suppose to be set!");
+            var createdFood = await _service.PostFood(requestFood);
+            if (createdFood.IsFailure)
+                return StatusCode(createdFood.Error!.StatusCode, createdFood.Error);
 
-            return CreatedAtAction(nameof(GetFoodById), new { id = food.Id }, food);
+            return CreatedAtAction(nameof(GetFoodById), new { id = createdFood.Value!.Id }, createdFood.Value);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutFood(int id, Food food)
+        public async Task<IActionResult> PutFood(int id, RequestFoodDTO requestFood)
         {
-            var success = await _service.PutFood(id, food);
+            var success = await _service.PutFood(id, requestFood);
 
-            if (success == null) return NotFound();
+            if (success.IsFailure)
+                return StatusCode(success.Error!.StatusCode, success.Error);
 
             return NoContent();
         }
@@ -55,7 +60,8 @@ namespace FoodDelivery.Controllers
         {
             var success = await _service.DeleteFood(id);
 
-            if (!success) return NotFound();
+            if (success.IsFailure)
+                return StatusCode(success.Error!.StatusCode, success.Error);
 
             return NoContent();
         }

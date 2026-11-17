@@ -1,13 +1,15 @@
-﻿using FoodDelivery.Entity;
+﻿using FoodDelivery.DTO.Food;
+using FoodDelivery.Entity;
+using FoodDelivery.Reply;
 
 namespace FoodDelivery.Service.Interfaces
 {
     public interface IFoodService
     {
-        Task<IEnumerable<Food>> GetFoodList();
-        Task<Food?> GetFoodById(int id);
-        Task<Food?> PostFood(Food food);
-        Task<Food?> PutFood(int id, Food food);
-        Task<bool> DeleteFood(int id);
+        Task<IEnumerable<ResponseFoodDTO>> GetFoodList();
+        Task<Reply<ResponseFoodDTO>> GetFoodById(int id);
+        Task<Reply<ResponseFoodDTO>> PostFood(RequestFoodDTO food);
+        Task<Reply<bool>> PutFood(int id, RequestFoodDTO food);
+        Task<Reply<bool>> DeleteFood(int id);
     }
 }
