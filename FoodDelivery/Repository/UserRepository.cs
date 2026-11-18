@@ -11,7 +11,7 @@ namespace FoodDelivery.Repository
         {
         }
 
-        public async Task<User?> CheckUsername(string username)
+        public async Task<User?> FindUserWithUsername(string username)
         {
             return await _dbSet.AsNoTracking().FirstOrDefaultAsync(u => u.Username.Equals(username));
         }

@@ -1,7 +1,8 @@
 ﻿using FoodDelivery.DTO.Food;
 using FoodDelivery.Entity;
-using FoodDelivery.Reply;
 using FoodDelivery.Repository.Interfaces;
+using FoodDelivery.Result;
+using FoodDelivery.Result.Error;
 using FoodDelivery.Service.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,7 +19,7 @@ namespace FoodDelivery.Service
 
         public async Task<IEnumerable<ResponseFoodDTO>> GetFoodList()
         {
-            var foodList =  await _repository.GetAll();
+            var foodList = await _repository.GetAll();
 
             var foodDTOList = new List<ResponseFoodDTO>();
             foreach (var food in foodList)
@@ -33,15 +34,15 @@ namespace FoodDelivery.Service
         public async Task<Reply<ResponseFoodDTO>> GetFoodById(int id)
         {
             var food = await _repository.GetById(id);
-            if (food == null) return Reply<ResponseFoodDTO>.NotFoundError($"Food with id: '{id}' was not found!");
+            if (food == null) return Reply<ResponseFoodDTO>.Failure(ErrorCore.NotFound($"Food with id: '{id}' was not found!"));
             var foodDto = CreateFoodDTO(food);
             return Reply<ResponseFoodDTO>.Success(foodDto);
         }
 
         public async Task<Reply<ResponseFoodDTO>> PostFood(RequestFoodDTO requestFood)
         {
-            if (requestFood == null) return Reply<ResponseFoodDTO>.ValidationError("Food was not forwarded!");
-            if (requestFood.Price <= 0) return Reply<ResponseFoodDTO>.ValidationError("Cannot set Food price to a negative number!");
+            if (requestFood == null) return Reply<ResponseFoodDTO>.Failure(ErrorCore.Validation("Food was not forwarded!"));
+            if (requestFood.Price <= 0) return Reply<ResponseFoodDTO>.Failure(ErrorCore.Validation("Cannot set Food price to zero or negative number!"));
 
             var food = MappingFood(0, requestFood);
             await _repository.Add(food);
@@ -50,12 +51,12 @@ namespace FoodDelivery.Service
             return Reply<ResponseFoodDTO>.Success(foodDto);
         }
 
-        public async Task<Reply<bool>> PutFood(int id, RequestFoodDTO requestFood)
+        public async Task<Reply> PutFood(int id, RequestFoodDTO requestFood)
         {
             var existingFood = await _repository.GetById(id);
 
-            if (existingFood == null) return Reply<bool>.NotFoundError($"Food with id: {id} was not found!");
-            if (requestFood.Price <= 0) return Reply<bool>.ValidationError("Cannot set Food price to a negative number!");
+            if (existingFood == null) return Reply.Failure(ErrorCore.NotFound($"Food with id: '{id}' was not found!"));
+            if (requestFood.Price <= 0) return Reply.Failure(ErrorCore.Validation("Cannot set Food price to a negative number!"));
 
             var food = MappingFood(id, requestFood);
             try
@@ -64,15 +65,15 @@ namespace FoodDelivery.Service
             }
             catch (DbUpdateConcurrencyException)
             {
-                return Reply<bool>.NotFoundError($"Food with id: {id} was not found (Id was probably changed/deleted).");
+                return Reply.Failure(ErrorCore.NotFound($"Food with id: {id} was not found (Id was probably changed/deleted)."));
             }
-            return Reply<bool>.Success(true);
+            return Reply.Success();
         }
 
-        public async Task<Reply<bool>> DeleteFood(int id)
+        public async Task<Reply> DeleteFood(int id)
         {
             var existingFood = await _repository.GetById(id);
-            if (existingFood == null) return Reply<bool>.NotFoundError($"Food with id: {id} was not found!");
+            if (existingFood == null) return Reply.Failure(ErrorCore.NotFound($"Food with id: '{id}' was not found!"));
 
             try
             {
@@ -80,9 +81,9 @@ namespace FoodDelivery.Service
             }
             catch (DbUpdateConcurrencyException)
             {
-                return Reply<bool>.NotFoundError($"Food with id: {id} was not found (Id was probably changed/deleted).");
+                return Reply.Failure(ErrorCore.NotFound($"Food with id: {id} was not found (Id was probably changed/deleted)."));
             }
-            return Reply<bool>.Success(true);
+            return Reply.Success();
         }
 
         private ResponseFoodDTO CreateFoodDTO(Food existingFood)

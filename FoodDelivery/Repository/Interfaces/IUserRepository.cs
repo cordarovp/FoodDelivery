@@ -4,6 +4,6 @@ namespace FoodDelivery.Repository.Interfaces
 {
     public interface IUserRepository : IRepository<int, User>
     {
-        Task<User?> CheckUsername(string username);
+        Task<User?> FindUserWithUsername(string username);
     }
 }

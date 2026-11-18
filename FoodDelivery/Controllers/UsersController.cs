@@ -27,20 +27,16 @@ namespace FoodDelivery.Controllers
         {
             var existingUser = await _service.GetUserDTOById(id);
 
-            if (existingUser.IsFailure)
-                return StatusCode(existingUser.Error!.StatusCode, existingUser.Error);
-
-            return Ok(existingUser.Value);
+            return ControllerExtensions.ToActionResult(this, existingUser);
         }
 
         [HttpPost]
         public async Task<ActionResult<ResponseUserDTO>> PostUser(RequestUserDTO user)
         {
             var createdUser = await _service.PostUser(user);
-            if (createdUser.IsFailure)
-                return StatusCode(createdUser.Error!.StatusCode, createdUser.Error);
 
-            return CreatedAtAction(nameof(GetUserDTOById), new { id = createdUser.Value!.Id }, createdUser.Value);
+            if (createdUser.IsFailure) return ControllerExtensions.ToActionResult(this, createdUser);
+            return ControllerExtensions.ToCreatedAtActionResult(this, createdUser, nameof(GetUserDTOById), new { id = createdUser.Value!.Id });
         }
 
         [HttpPut("{id}")]
@@ -48,10 +44,8 @@ namespace FoodDelivery.Controllers
         public async Task<IActionResult> PutUser(int id, RequestUserDTO user)
         {
             var success = await _service.PutUser(id, user);
-            if (success.IsFailure)
-                return StatusCode(success.Error!.StatusCode, success.Error);
 
-            return NoContent();
+            return ControllerExtensions.ToActionResult(this, success);
         }
 
         [HttpDelete("{id}")]
@@ -59,10 +53,8 @@ namespace FoodDelivery.Controllers
         public async Task<IActionResult> DeleteUser(int id)
         {
             var success = await _service.DeleteUser(id);
-            if (success.IsFailure)
-                return StatusCode(success.Error!.StatusCode, success.Error);
 
-            return NoContent();
+            return ControllerExtensions.ToActionResult(this, success);
         }
     }
 }

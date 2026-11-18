@@ -1,5 +1,5 @@
 ﻿using FoodDelivery.DTO.User;
-using FoodDelivery.Reply;
+using FoodDelivery.Result;
 
 namespace FoodDelivery.Service.Interfaces
 {
@@ -8,7 +8,7 @@ namespace FoodDelivery.Service.Interfaces
         Task<IEnumerable<ResponseUserDTO>> GetUserDTOList();
         Task<Reply<ResponseUserDTO>> GetUserDTOById(int id);
         Task<Reply<ResponseUserDTO>> PostUser(RequestUserDTO requestUser);
-        Task<Reply<bool>> PutUser(int id, RequestUserDTO requestUser);
-        Task<Reply<bool>> DeleteUser(int id);
+        Task<Reply> PutUser(int id, RequestUserDTO requestUser);
+        Task<Reply> DeleteUser(int id);
     }
 }

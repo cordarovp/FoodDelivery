@@ -1,5 +1,5 @@
 ﻿using FoodDelivery.DTO.Restaurant;
-using FoodDelivery.Reply;
+using FoodDelivery.Result;
 
 namespace FoodDelivery.Service.Interfaces
 {
@@ -8,7 +8,7 @@ namespace FoodDelivery.Service.Interfaces
         Task<IEnumerable<ResponseRestaurantDTO>> GetRestaurantList();
         Task<Reply<ResponseRestaurantDTO>> GetRestaurantById(int id);
         Task<Reply<ResponseRestaurantDTO>> PostRestaurant(RequestRestaurantDTO restaurant);
-        Task<Reply<bool>> PutRestaurant(int id, RequestRestaurantDTO restaurant);
-        Task<Reply<bool>> DeleteRestaurant(int id);
+        Task<Reply> PutRestaurant(int id, RequestRestaurantDTO restaurant);
+        Task<Reply> DeleteRestaurant(int id);
     }
 }

@@ -1,7 +1,8 @@
 ﻿using FoodDelivery.DTO.User;
 using FoodDelivery.Entity;
-using FoodDelivery.Reply;
 using FoodDelivery.Repository.Interfaces;
+using FoodDelivery.Result;
+using FoodDelivery.Result.Error;
 using FoodDelivery.Service.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -33,15 +34,15 @@ namespace FoodDelivery.Service
         public async Task<Reply<ResponseUserDTO>> GetUserDTOById(int id)
         {
             var user = await _repository.GetById(id);
-            if (user == null) return Reply<ResponseUserDTO>.NotFoundError($"User with id: '{id}' was not found!");
+            if (user == null) return Reply<ResponseUserDTO>.Failure(ErrorCore.NotFound($"User with id: '{id}' was not found!"));
             var userDto = CreateUserDTO(user);
             return Reply<ResponseUserDTO>.Success(userDto);
         }
 
         public async Task<Reply<ResponseUserDTO>> PostUser(RequestUserDTO requestUser)
         {
-            if (requestUser == null) return Reply<ResponseUserDTO>.ValidationError("User was not forwarded!");
-            if (await IsUsernameTakenAsync(0, requestUser)) return Reply<ResponseUserDTO>.ValidationError($"User with username: '{requestUser.Username}' already exists!");
+            if (requestUser == null) return Reply<ResponseUserDTO>.Failure(ErrorCore.Validation("User was not forwarded!"));
+            if (await IsUsernameTakenAsync(0, requestUser)) return Reply<ResponseUserDTO>.Failure(ErrorCore.Conflict($"User with username: '{requestUser.Username}' already exists!"));
 
             var user = MappingUser(0, requestUser);
             await _repository.Add(user);
@@ -50,12 +51,12 @@ namespace FoodDelivery.Service
             return Reply<ResponseUserDTO>.Success(userDto);
         }
 
-        public async Task<Reply<bool>> PutUser(int id, RequestUserDTO requestUser)
+        public async Task<Reply> PutUser(int id, RequestUserDTO requestUser)
         {
             var existingUser = await _repository.GetById(id);
 
-            if (existingUser == null) return Reply<bool>.NotFoundError($"User with id: {id} was not found!");
-            if (await IsUsernameTakenAsync(id, requestUser)) return Reply<bool>.ValidationError($"User with username: '{requestUser.Username}' already exists!");
+            if (existingUser == null) return Reply.Failure(ErrorCore.NotFound($"User with id: {id} was not found!"));
+            if (await IsUsernameTakenAsync(id, requestUser)) return Reply.Failure(ErrorCore.Conflict($"User with username: '{requestUser.Username}' already exists!"));
 
             var user = MappingUser(id, requestUser);
             try
@@ -64,15 +65,15 @@ namespace FoodDelivery.Service
             }
             catch (DbUpdateConcurrencyException)
             {
-                return Reply<bool>.NotFoundError($"User with id: {id} was not found (Id was probably changed/deleted).");
+                return Reply.Failure(ErrorCore.NotFound($"User with id: {id} was not found (Id was probably changed/deleted)."));
             }
-            return Reply<bool>.Success(true);
+            return Reply.Success();
         }
 
-        public async Task<Reply<bool>> DeleteUser(int id)
+        public async Task<Reply> DeleteUser(int id)
         {
             var existingUser = await _repository.GetById(id);
-            if (existingUser == null) return Reply<bool>.NotFoundError($"Food with id: {id} was not found!");
+            if (existingUser == null) return Reply.Failure(ErrorCore.NotFound($"User with id: {id} was not found!"));
 
             try
             {
@@ -80,9 +81,9 @@ namespace FoodDelivery.Service
             }
             catch (DbUpdateConcurrencyException)
             {
-                return Reply<bool>.NotFoundError($"User with id: {id} was not found (Id was probably changed/deleted).");
+                return Reply.Failure(ErrorCore.NotFound($"User with id: {id} was not found (Id was probably changed/deleted)."));
             }
-            return Reply<bool>.Success(true);
+            return Reply.Success();
         }
 
 
@@ -120,7 +121,7 @@ namespace FoodDelivery.Service
 
         private async Task<bool> IsUsernameTakenAsync(int id, RequestUserDTO updateUser)
         {
-            var user =  await _repository.CheckUsername(updateUser.Username);
+            var user =  await _repository.FindUserWithUsername(updateUser.Username);
             if (user == null) return false;
             if (user.Id.Equals(id)) return false;
             else return true;

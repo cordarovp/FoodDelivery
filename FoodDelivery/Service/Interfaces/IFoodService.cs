@@ -1,6 +1,5 @@
 ﻿using FoodDelivery.DTO.Food;
-using FoodDelivery.Entity;
-using FoodDelivery.Reply;
+using FoodDelivery.Result;
 
 namespace FoodDelivery.Service.Interfaces
 {
@@ -9,7 +8,7 @@ namespace FoodDelivery.Service.Interfaces
         Task<IEnumerable<ResponseFoodDTO>> GetFoodList();
         Task<Reply<ResponseFoodDTO>> GetFoodById(int id);
         Task<Reply<ResponseFoodDTO>> PostFood(RequestFoodDTO food);
-        Task<Reply<bool>> PutFood(int id, RequestFoodDTO food);
-        Task<Reply<bool>> DeleteFood(int id);
+        Task<Reply> PutFood(int id, RequestFoodDTO food);
+        Task<Reply> DeleteFood(int id);
     }
 }

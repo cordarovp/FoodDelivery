@@ -1,5 +1,4 @@
 ﻿using FoodDelivery.DTO.Food;
-using FoodDelivery.Entity;
 using FoodDelivery.Service.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -28,42 +27,31 @@ namespace FoodDelivery.Controllers
         {
             var existingFood = await _service.GetFoodById(id);
 
-            if (existingFood.IsFailure)
-                return StatusCode(existingFood.Error!.StatusCode, existingFood.Error);
-
-            return Ok(existingFood.Value);
+            return ControllerExtensions.ToActionResult(this, existingFood);
         }
 
         [HttpPost]
         public async Task<ActionResult<ResponseFoodDTO>> PostFood(RequestFoodDTO requestFood)
         {
             var createdFood = await _service.PostFood(requestFood);
-            if (createdFood.IsFailure)
-                return StatusCode(createdFood.Error!.StatusCode, createdFood.Error);
 
-            return CreatedAtAction(nameof(GetFoodById), new { id = createdFood.Value!.Id }, createdFood.Value);
+            if (createdFood.IsFailure) return ControllerExtensions.ToActionResult(this, createdFood);
+
+            return ControllerExtensions.ToCreatedAtActionResult(this, createdFood, nameof(GetFoodById), new { id = createdFood.Value!.Id });
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> PutFood(int id, RequestFoodDTO requestFood)
         {
             var success = await _service.PutFood(id, requestFood);
-
-            if (success.IsFailure)
-                return StatusCode(success.Error!.StatusCode, success.Error);
-
-            return NoContent();
+            return ControllerExtensions.ToActionResult(this, success);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteFood(int id)
         {
             var success = await _service.DeleteFood(id);
-
-            if (success.IsFailure)
-                return StatusCode(success.Error!.StatusCode, success.Error);
-
-            return NoContent();
+            return ControllerExtensions.ToActionResult(this, success);
         }
     }
 }

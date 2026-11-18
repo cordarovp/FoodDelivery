@@ -1,7 +1,8 @@
 ﻿using FoodDelivery.DTO.Restaurant;
 using FoodDelivery.Entity;
-using FoodDelivery.Reply;
 using FoodDelivery.Repository.Interfaces;
+using FoodDelivery.Result;
+using FoodDelivery.Result.Error;
 using FoodDelivery.Service.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -33,7 +34,7 @@ namespace FoodDelivery.Service
         public async Task<Reply<ResponseRestaurantDTO>> GetRestaurantById(int id)
         {
             var restaurant = await _repository.GetById(id);
-            if (restaurant == null) return Reply<ResponseRestaurantDTO>.NotFoundError($"Restaurant with id: '{id}' was not found!");
+            if (restaurant == null) return Reply<ResponseRestaurantDTO>.Failure(ErrorCore.NotFound($"Restaurant with id: '{id}' was not found!"));
 
             var restaurantDto = CreateRestaurantDTO(restaurant);
             return Reply<ResponseRestaurantDTO>.Success(restaurantDto);
@@ -41,7 +42,7 @@ namespace FoodDelivery.Service
 
         public async Task<Reply<ResponseRestaurantDTO>> PostRestaurant(RequestRestaurantDTO requestRestaurant)
         {
-            if (requestRestaurant == null) return Reply<ResponseRestaurantDTO>.NotFoundError($"Restaurant was not forwarded!");
+            if (requestRestaurant == null) return Reply<ResponseRestaurantDTO>.Failure(ErrorCore.Validation($"Restaurant was not forwarded!"));
             //Todo check for restaurant in the same position
 
             var restaurant = MappingRestaurant(0, requestRestaurant);
@@ -51,10 +52,10 @@ namespace FoodDelivery.Service
             return Reply<ResponseRestaurantDTO>.Success(restaurantDto);
         }
 
-        public async Task<Reply<bool>> PutRestaurant(int id, RequestRestaurantDTO requestRestaurant)
+        public async Task<Reply> PutRestaurant(int id, RequestRestaurantDTO requestRestaurant)
         {
             var existingRestaurant = await _repository.GetById(id);
-            if (existingRestaurant == null) return Reply<bool>.NotFoundError($"Restaurant by id: '{id}' was not forwarded!");
+            if (existingRestaurant == null) return Reply.Failure(ErrorCore.NotFound($"Restaurant by id: '{id}' was not forwarded!"));
             //Todo check for restaurant in the same position
 
             var restaurant = MappingRestaurant(id, requestRestaurant);
@@ -64,15 +65,15 @@ namespace FoodDelivery.Service
             }
             catch (DbUpdateConcurrencyException)
             {
-                return Reply<bool>.NotFoundError($"Restaurant with id: {id} was not found (Id was probably changed/deleted).");
+                return Reply.Failure(ErrorCore.NotFound($"Restaurant with id: {id} was not found (Id was probably changed/deleted)."));
             }
-            return Reply<bool>.Success(true);
+            return Reply.Success();
         }
 
-        public async Task<Reply<bool>> DeleteRestaurant(int id)
+        public async Task<Reply> DeleteRestaurant(int id)
         {
             var existingRestaurant = await _repository.GetById(id);
-            if (existingRestaurant == null) return Reply<bool>.NotFoundError($"Restaurant by id: '{id}' was not forwarded!");
+            if (existingRestaurant == null) return Reply.Failure(ErrorCore.NotFound($"Restaurant by id: '{id}' was not forwarded!"));
 
             try
             {
@@ -80,9 +81,9 @@ namespace FoodDelivery.Service
             }
             catch (DbUpdateConcurrencyException)
             {
-                return Reply<bool>.NotFoundError($"Restaurant with id: {id} was not found (Id was probably changed/deleted).");
+                return Reply.Failure(ErrorCore.NotFound($"Restaurant with id: {id} was not found (Id was probably changed/deleted)."));
             }
-            return Reply<bool>.Success(true);
+            return Reply.Success();
         }
 
         private ResponseRestaurantDTO CreateRestaurantDTO(Restaurant restaurant)
