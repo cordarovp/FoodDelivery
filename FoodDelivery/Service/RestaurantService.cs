@@ -3,6 +3,7 @@ using FoodDelivery.Entity;
 using FoodDelivery.Reply;
 using FoodDelivery.Repository.Interfaces;
 using FoodDelivery.Service.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace FoodDelivery.Service
 {
@@ -57,7 +58,14 @@ namespace FoodDelivery.Service
             //Todo check for restaurant in the same position
 
             var restaurant = MappingRestaurant(id, requestRestaurant);
-            await _repository.Update(restaurant);
+            try
+            {
+                await _repository.Update(restaurant);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return Reply<bool>.NotFoundError($"Restaurant with id: {id} was not found (Id was probably changed/deleted).");
+            }
             return Reply<bool>.Success(true);
         }
 
@@ -66,7 +74,14 @@ namespace FoodDelivery.Service
             var existingRestaurant = await _repository.GetById(id);
             if (existingRestaurant == null) return Reply<bool>.NotFoundError($"Restaurant by id: '{id}' was not forwarded!");
 
-            await _repository.Delete(existingRestaurant);
+            try
+            {
+                await _repository.Delete(existingRestaurant);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return Reply<bool>.NotFoundError($"Restaurant with id: {id} was not found (Id was probably changed/deleted).");
+            }
             return Reply<bool>.Success(true);
         }
 

@@ -3,6 +3,7 @@ using FoodDelivery.Entity;
 using FoodDelivery.Reply;
 using FoodDelivery.Repository.Interfaces;
 using FoodDelivery.Service.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace FoodDelivery.Service
 {
@@ -57,7 +58,14 @@ namespace FoodDelivery.Service
             if (requestFood.Price <= 0) return Reply<bool>.ValidationError("Cannot set Food price to a negative number!");
 
             var food = MappingFood(id, requestFood);
-            await _repository.Update(food);
+            try
+            {
+                await _repository.Update(food);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return Reply<bool>.NotFoundError($"Food with id: {id} was not found (Id was probably changed/deleted).");
+            }
             return Reply<bool>.Success(true);
         }
 
@@ -66,7 +74,14 @@ namespace FoodDelivery.Service
             var existingFood = await _repository.GetById(id);
             if (existingFood == null) return Reply<bool>.NotFoundError($"Food with id: {id} was not found!");
 
-            await _repository.Delete(existingFood);
+            try
+            {
+                await _repository.Delete(existingFood);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return Reply<bool>.NotFoundError($"Food with id: {id} was not found (Id was probably changed/deleted).");
+            }
             return Reply<bool>.Success(true);
         }
 

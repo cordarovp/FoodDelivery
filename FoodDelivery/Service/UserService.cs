@@ -3,6 +3,7 @@ using FoodDelivery.Entity;
 using FoodDelivery.Reply;
 using FoodDelivery.Repository.Interfaces;
 using FoodDelivery.Service.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace FoodDelivery.Service
 {
@@ -57,7 +58,14 @@ namespace FoodDelivery.Service
             if (await IsUsernameTakenAsync(id, requestUser)) return Reply<bool>.ValidationError($"User with username: '{requestUser.Username}' already exists!");
 
             var user = MappingUser(id, requestUser);
-            await _repository.Update(user);
+            try
+            {
+                await _repository.Update(user);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return Reply<bool>.NotFoundError($"User with id: {id} was not found (Id was probably changed/deleted).");
+            }
             return Reply<bool>.Success(true);
         }
 
@@ -66,7 +74,14 @@ namespace FoodDelivery.Service
             var existingUser = await _repository.GetById(id);
             if (existingUser == null) return Reply<bool>.NotFoundError($"Food with id: {id} was not found!");
 
-            await _repository.Delete(existingUser);
+            try
+            {
+                await _repository.Delete(existingUser);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return Reply<bool>.NotFoundError($"User with id: {id} was not found (Id was probably changed/deleted).");
+            }
             return Reply<bool>.Success(true);
         }
 
