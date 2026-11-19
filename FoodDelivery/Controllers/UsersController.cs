@@ -35,8 +35,7 @@ namespace FoodDelivery.Controllers
         {
             var createdUser = await _service.PostUser(user);
 
-            if (createdUser.IsFailure) return this.ToActionResult(createdUser);
-            return this.ToCreatedAtActionResult(createdUser, nameof(GetUserDTOById), new { id = createdUser.Value!.Id });
+            return this.ToCreatedAtActionResult(createdUser, nameof(GetUserDTOById), new { id = createdUser.Value?.Id });
         }
 
         [HttpPut("{id}")]

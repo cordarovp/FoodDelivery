@@ -20,6 +20,8 @@ namespace FoodDelivery.Controllers
 
         public static ActionResult<T> ToCreatedAtActionResult<T>(this ControllerBase controller, Reply<T> reply, string actionName, object? routeValues)
         {
+            if (reply.IsFailure) return controller.ToProblemDetails(reply.Error);
+
             return controller.CreatedAtAction(
                 actionName: actionName,
                 controllerName: null,

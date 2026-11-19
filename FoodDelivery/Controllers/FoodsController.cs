@@ -35,9 +35,7 @@ namespace FoodDelivery.Controllers
         {
             var createdFood = await _service.PostFood(requestFood);
 
-            if (createdFood.IsFailure) return this.ToActionResult(createdFood);
-
-            return this.ToCreatedAtActionResult(createdFood, nameof(GetFoodById), new { id = createdFood.Value!.Id });
+            return this.ToCreatedAtActionResult(createdFood, nameof(GetFoodById), new { id = createdFood.Value?.Id });
         }
 
         [HttpPut("{id}")]
