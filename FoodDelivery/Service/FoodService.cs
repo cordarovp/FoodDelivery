@@ -44,7 +44,7 @@ namespace FoodDelivery.Service
             if (requestFood == null) return Reply<ResponseFoodDTO>.Failure(ErrorCore.Validation("Food was not forwarded!"));
             if (requestFood.Price <= 0) return Reply<ResponseFoodDTO>.Failure(ErrorCore.Validation("Cannot set Food price to zero or negative number!"));
 
-            var food = MappingFood(0, requestFood);
+            var food = MappingNewFood(0, requestFood);
             await _repository.Add(food);
 
             var foodDto = CreateFoodDTO(food);
@@ -56,12 +56,12 @@ namespace FoodDelivery.Service
             var existingFood = await _repository.GetById(id);
 
             if (existingFood == null) return Reply.Failure(ErrorCore.NotFound($"Food with id: '{id}' was not found!"));
-            if (requestFood.Price <= 0) return Reply.Failure(ErrorCore.Validation("Cannot set Food price to a negative number!"));
+            if (requestFood.Price <= 0) return Reply.Failure(ErrorCore.Validation("Cannot set Food price to a negative number or negative number!"));
 
-            var food = MappingFood(id, requestFood);
+            MappingFood(existingFood, requestFood);
             try
             {
-                await _repository.Update(food);
+                await _repository.Update(existingFood);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -98,7 +98,7 @@ namespace FoodDelivery.Service
             return foodDto;
         }
 
-        private Food MappingFood(int id, RequestFoodDTO requestFood)
+        private Food MappingNewFood(int id, RequestFoodDTO requestFood)
         {
             Food food = new Food
             {
@@ -107,6 +107,12 @@ namespace FoodDelivery.Service
                 Price = requestFood.Price
             };
             return food;
+        }
+
+        private void MappingFood(Food existingFood, RequestFoodDTO requestFood)
+        {
+            existingFood.Name = requestFood.Name;
+            existingFood.Price = requestFood.Price;
         }
     }
 }

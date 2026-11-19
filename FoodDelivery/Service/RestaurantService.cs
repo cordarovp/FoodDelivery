@@ -45,7 +45,7 @@ namespace FoodDelivery.Service
             if (requestRestaurant == null) return Reply<ResponseRestaurantDTO>.Failure(ErrorCore.Validation($"Restaurant was not forwarded!"));
             //Todo check for restaurant in the same position
 
-            var restaurant = MappingRestaurant(0, requestRestaurant);
+            var restaurant = MappingNewRestaurant(0, requestRestaurant);
             await _repository.Add(restaurant);
 
             var restaurantDto = CreateRestaurantDTO(restaurant);
@@ -55,13 +55,13 @@ namespace FoodDelivery.Service
         public async Task<Reply> PutRestaurant(int id, RequestRestaurantDTO requestRestaurant)
         {
             var existingRestaurant = await _repository.GetById(id);
-            if (existingRestaurant == null) return Reply.Failure(ErrorCore.NotFound($"Restaurant by id: '{id}' was not forwarded!"));
+            if (existingRestaurant == null) return Reply.Failure(ErrorCore.NotFound($"Restaurant by id: '{id}' was not found!"));
             //Todo check for restaurant in the same position
 
-            var restaurant = MappingRestaurant(id, requestRestaurant);
+            MappingRestaurant(existingRestaurant, requestRestaurant);
             try
             {
-                await _repository.Update(restaurant);
+                await _repository.Update(existingRestaurant);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -73,7 +73,7 @@ namespace FoodDelivery.Service
         public async Task<Reply> DeleteRestaurant(int id)
         {
             var existingRestaurant = await _repository.GetById(id);
-            if (existingRestaurant == null) return Reply.Failure(ErrorCore.NotFound($"Restaurant by id: '{id}' was not forwarded!"));
+            if (existingRestaurant == null) return Reply.Failure(ErrorCore.NotFound($"Restaurant by id: '{id}' was not found!"));
 
             try
             {
@@ -98,7 +98,7 @@ namespace FoodDelivery.Service
             return restaurantDto;
         }
 
-        private Restaurant MappingRestaurant(int id, RequestRestaurantDTO requestRestaurant)
+        private Restaurant MappingNewRestaurant(int id, RequestRestaurantDTO requestRestaurant)
         {
             Restaurant restaurant = new Restaurant
             {
@@ -108,6 +108,12 @@ namespace FoodDelivery.Service
             };
 
             return restaurant;
+        }
+
+        private void MappingRestaurant(Restaurant existingRestaurant, RequestRestaurantDTO requestRestaurant)
+        {
+            existingRestaurant.GeoLat = requestRestaurant.GeoLat;
+            existingRestaurant.GeoLon = requestRestaurant.GeoLon;
         }
     }
 }
