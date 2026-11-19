@@ -27,7 +27,7 @@ namespace FoodDelivery.Controllers
         {
             var existingFood = await _service.GetFoodById(id);
 
-            return ControllerExtensions.ToActionResult(this, existingFood);
+            return this.ToActionResult(existingFood);
         }
 
         [HttpPost]
@@ -35,23 +35,23 @@ namespace FoodDelivery.Controllers
         {
             var createdFood = await _service.PostFood(requestFood);
 
-            if (createdFood.IsFailure) return ControllerExtensions.ToActionResult(this, createdFood);
+            if (createdFood.IsFailure) return this.ToActionResult(createdFood);
 
-            return ControllerExtensions.ToCreatedAtActionResult(this, createdFood, nameof(GetFoodById), new { id = createdFood.Value!.Id });
+            return this.ToCreatedAtActionResult(createdFood, nameof(GetFoodById), new { id = createdFood.Value!.Id });
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> PutFood(int id, RequestFoodDTO requestFood)
         {
             var success = await _service.PutFood(id, requestFood);
-            return ControllerExtensions.ToActionResult(this, success);
+            return this.ToActionResult(success);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteFood(int id)
         {
             var success = await _service.DeleteFood(id);
-            return ControllerExtensions.ToActionResult(this, success);
+            return this.ToActionResult(success);
         }
     }
 }

@@ -27,7 +27,7 @@ namespace FoodDelivery.Controllers
         {
             var existingUser = await _service.GetUserDTOById(id);
 
-            return ControllerExtensions.ToActionResult(this, existingUser);
+            return this.ToActionResult(existingUser);
         }
 
         [HttpPost]
@@ -35,8 +35,8 @@ namespace FoodDelivery.Controllers
         {
             var createdUser = await _service.PostUser(user);
 
-            if (createdUser.IsFailure) return ControllerExtensions.ToActionResult(this, createdUser);
-            return ControllerExtensions.ToCreatedAtActionResult(this, createdUser, nameof(GetUserDTOById), new { id = createdUser.Value!.Id });
+            if (createdUser.IsFailure) return this.ToActionResult(createdUser);
+            return this.ToCreatedAtActionResult(createdUser, nameof(GetUserDTOById), new { id = createdUser.Value!.Id });
         }
 
         [HttpPut("{id}")]
@@ -45,7 +45,7 @@ namespace FoodDelivery.Controllers
         {
             var success = await _service.PutUser(id, user);
 
-            return ControllerExtensions.ToActionResult(this, success);
+            return this.ToActionResult(success);
         }
 
         [HttpDelete("{id}")]
@@ -54,7 +54,7 @@ namespace FoodDelivery.Controllers
         {
             var success = await _service.DeleteUser(id);
 
-            return ControllerExtensions.ToActionResult(this, success);
+            return this.ToActionResult(success);
         }
     }
 }

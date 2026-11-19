@@ -27,7 +27,7 @@ namespace FoodDelivery.Controllers
         {
             var existingRestaurant = await _service.GetRestaurantById(id);
             
-            return ControllerExtensions.ToActionResult(this, existingRestaurant);
+            return this.ToActionResult(existingRestaurant);
         }
 
         [HttpPost]
@@ -35,8 +35,8 @@ namespace FoodDelivery.Controllers
         {
             var createdRestaurant = await _service.PostRestaurant(restaurant);
             
-            if (createdRestaurant.IsFailure) return ControllerExtensions.ToActionResult(this, createdRestaurant);
-            return ControllerExtensions.ToCreatedAtActionResult(this, createdRestaurant, nameof(GetRestaurantById), new {id = createdRestaurant.Value!.Id});
+            if (createdRestaurant.IsFailure) return this.ToActionResult(createdRestaurant);
+            return this.ToCreatedAtActionResult(createdRestaurant, nameof(GetRestaurantById), new {id = createdRestaurant.Value!.Id});
         }
 
         [HttpPut("{id}")]
@@ -44,7 +44,7 @@ namespace FoodDelivery.Controllers
         {
             var success = await _service.PutRestaurant(id, restaurant);
             
-            return ControllerExtensions.ToActionResult(this, success);
+            return this.ToActionResult(success);
         }
 
         [HttpDelete("{id}")]
@@ -52,7 +52,7 @@ namespace FoodDelivery.Controllers
         {
             var success = await _service.DeleteRestaurant(id);
             
-            return ControllerExtensions.ToActionResult(this, success);
+            return this.ToActionResult(success);
         }
     }
 }
