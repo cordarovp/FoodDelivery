@@ -1,5 +1,4 @@
-﻿
-using FoodDelivery.Result.Error;
+﻿using FoodDelivery.Result.Error;
 
 namespace FoodDelivery.Result
 {
@@ -33,9 +32,6 @@ namespace FoodDelivery.Result
         }
 
         public static Reply<T> Success(T value) => new(value);
-        public static new Reply<T> Failure(ErrorCore error)
-        {
-            return new(error);
-        }
+        public static new Reply<T> Failure(ErrorCore error) => new(error);
     }
 }

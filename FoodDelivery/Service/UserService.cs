@@ -58,7 +58,7 @@ namespace FoodDelivery.Service
             if (existingUser == null) return Reply.Failure(ErrorCore.NotFound($"User with id: {id} was not found!"));
             if (await IsUsernameTakenAsync(id, requestUser)) return Reply.Failure(ErrorCore.Conflict($"User with username: '{requestUser.Username}' already exists!"));
 
-            var user = MappingUser(id, requestUser);
+            var user = MappingUser(id, requestUser, existingUser.IsAdmin);
             try
             {
                 await _repository.Update(user);
@@ -102,7 +102,7 @@ namespace FoodDelivery.Service
         }
 
         //Todo IsAdmin set and autharization
-        private User MappingUser(int id, RequestUserDTO requestUser)
+        private User MappingUser(int id, RequestUserDTO requestUser, bool isAdmin = false)
         {
             User user = new User
             {
@@ -113,7 +113,7 @@ namespace FoodDelivery.Service
                 GeoLon = requestUser.GeoLon,
                 Username = requestUser.Username,
                 Password = requestUser.Password,
-                IsAdmin = false
+                IsAdmin = isAdmin
             };
 
             return user;
@@ -121,7 +121,7 @@ namespace FoodDelivery.Service
 
         private async Task<bool> IsUsernameTakenAsync(int id, RequestUserDTO updateUser)
         {
-            var user =  await _repository.FindUserWithUsername(updateUser.Username);
+            var user = await _repository.FindUserWithUsername(updateUser.Username);
             if (user == null) return false;
             if (user.Id.Equals(id)) return false;
             else return true;
