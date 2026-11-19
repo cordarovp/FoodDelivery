@@ -1,4 +1,5 @@
 using FoodDelivery.Data;
+using FoodDelivery.Entity;
 using FoodDelivery.Repository;
 using FoodDelivery.Repository.Interfaces;
 using FoodDelivery.Service;
@@ -14,7 +15,13 @@ namespace FoodDelivery
             var builder = WebApplication.CreateBuilder(args);
             var connectionString = builder.Configuration.GetConnectionString("FoodDeliveryDbContext") ?? throw new InvalidOperationException("Connection string 'FoodDeliveryDbContext' not found.");
 
-            builder.Services.AddDbContext<FoodDeliveryDbContext>(options => options.UseSqlServer(connectionString));
+            builder.Services.AddDbContext<FoodDeliveryDbContext>(options =>
+            {
+                options.UseSqlServer(connectionString);
+
+                options.UseSeeding((context, _) => SeedData.Seed(context));
+            });
+
 
             // Add services to the container.
 
