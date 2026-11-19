@@ -1,58 +1,112 @@
-﻿using FoodDelivery.Data;
+﻿using FoodDelivery.DTO.Food;
 using FoodDelivery.Entity;
-using FoodDelivery.Repository;
-using Microsoft.IdentityModel.Tokens;
+using FoodDelivery.Repository.Interfaces;
+using FoodDelivery.Result;
+using FoodDelivery.Result.Error;
+using FoodDelivery.Service.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace FoodDelivery.Service
 {
     public class FoodService : IFoodService
     {
-        private readonly IFoodRepository _repository;
+        private readonly IRepository<int, Food> _repository;
 
-        public FoodService(IFoodRepository repository)
+        public FoodService(IRepository<int, Food> repository)
         {
             _repository = repository;
         }
 
-        public IEnumerable<Food> GetFoodList()
+        public async Task<IEnumerable<ResponseFoodDTO>> GetFoodList()
         {
-            return _repository.GetFoodList();
+            var foodList = await _repository.GetAll();
+
+            var foodDTOList = new List<ResponseFoodDTO>();
+            foreach (var food in foodList)
+            {
+                var foodDto = CreateFoodDTO(food);
+                foodDTOList.Add(foodDto);
+            }
+
+            return foodDTOList;
         }
 
-        public Food? GetFoodById(int id)
+        public async Task<Reply<ResponseFoodDTO>> GetFoodById(int id)
         {
-            return _repository.GetFoodById(id);
+            var food = await _repository.GetById(id);
+            if (food == null) return Reply<ResponseFoodDTO>.Failure(ErrorCore.NotFound($"Food with id: '{id}' was not found!"));
+            var foodDto = CreateFoodDTO(food);
+            return Reply<ResponseFoodDTO>.Success(foodDto);
         }
 
-        public Food? PostFood(Food food)
+        public async Task<Reply<ResponseFoodDTO>> PostFood(RequestFoodDTO requestFood)
         {
-            //Todo checks and returns of correct type for status codes
-            if (food.Price <= 0) return null;
-            if (food.Id != 0) return null;
+            if (requestFood == null) return Reply<ResponseFoodDTO>.Failure(ErrorCore.Validation("Food was not forwarded!"));
+            if (requestFood.Price <= 0) return Reply<ResponseFoodDTO>.Failure(ErrorCore.Validation("Cannot set Food price to zero or negative number!"));
 
-            _repository.AddFood(food);
+            var food = MappingFood(0, requestFood);
+            await _repository.Add(food);
+
+            var foodDto = CreateFoodDTO(food);
+            return Reply<ResponseFoodDTO>.Success(foodDto);
+        }
+
+        public async Task<Reply> PutFood(int id, RequestFoodDTO requestFood)
+        {
+            var existingFood = await _repository.GetById(id);
+
+            if (existingFood == null) return Reply.Failure(ErrorCore.NotFound($"Food with id: '{id}' was not found!"));
+            if (requestFood.Price <= 0) return Reply.Failure(ErrorCore.Validation("Cannot set Food price to a negative number!"));
+
+            var food = MappingFood(id, requestFood);
+            try
+            {
+                await _repository.Update(food);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return Reply.Failure(ErrorCore.NotFound($"Food with id: {id} was not found (Id was probably changed/deleted)."));
+            }
+            return Reply.Success();
+        }
+
+        public async Task<Reply> DeleteFood(int id)
+        {
+            var existingFood = await _repository.GetById(id);
+            if (existingFood == null) return Reply.Failure(ErrorCore.NotFound($"Food with id: '{id}' was not found!"));
+
+            try
+            {
+                await _repository.Delete(existingFood);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return Reply.Failure(ErrorCore.NotFound($"Food with id: {id} was not found (Id was probably changed/deleted)."));
+            }
+            return Reply.Success();
+        }
+
+        private ResponseFoodDTO CreateFoodDTO(Food existingFood)
+        {
+            var foodDto = new ResponseFoodDTO
+            {
+                Id = existingFood.Id,
+                Name = existingFood.Name,
+                Price = existingFood.Price
+            };
+
+            return foodDto;
+        }
+
+        private Food MappingFood(int id, RequestFoodDTO requestFood)
+        {
+            Food food = new Food
+            {
+                Id = id,
+                Name = requestFood.Name,
+                Price = requestFood.Price
+            };
             return food;
-        }
-
-        public Food? PutFood(int id, Food food)
-        {
-            var existingFood = _repository.GetFoodById(id);
-            //Todo checks and returns of correct type for status codes
-            if (existingFood == null || id != food.Id) return null;
-            if (food.Price <= 0) return null;
-
-            _repository.UpdateFood(food);
-            return food;
-        }
-
-        public bool DeleteFood(int id)
-        {
-            var existingFood = _repository.GetFoodById(id);
-            //Todo checks and returns of correct type for status codes
-            if (existingFood == null) return false;
-
-            _repository.RemoveFood(existingFood);
-            return true;
         }
     }
 }

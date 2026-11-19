@@ -1,9 +1,6 @@
-﻿using FoodDelivery.Entity;
-using FoodDelivery.Repository;
-using FoodDelivery.Service;
-using Microsoft.AspNetCore.Http;
+﻿using FoodDelivery.DTO.Food;
+using FoodDelivery.Service.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace FoodDelivery.Controllers
 {
@@ -19,48 +16,42 @@ namespace FoodDelivery.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Food>> GetFood()
+        public async Task<ActionResult<IEnumerable<ResponseFoodDTO>>> GetFood()
         {
-            var foodList = _service.GetFoodList();
+            var foodList = await _service.GetFoodList();
             return Ok(foodList);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Food> GetFoodById(int id)
+        public async Task<ActionResult<ResponseFoodDTO>> GetFoodById(int id)
         {
-            var existingFood = _service.GetFoodById(id);
-            if(existingFood == null) return NotFound($"Food by id: {id} vas not found.");
+            var existingFood = await _service.GetFoodById(id);
 
-            return Ok(existingFood);
+            return ControllerExtensions.ToActionResult(this, existingFood);
         }
 
         [HttpPost]
-        public ActionResult<Food> PostFood(Food food)
+        public async Task<ActionResult<ResponseFoodDTO>> PostFood(RequestFoodDTO requestFood)
         {
-            var createdFood = _service.PostFood(food);
-            if(createdFood == null) return BadRequest($"Food data 'Price': {food.Price} is incorect or id was not suppose to be set!");
+            var createdFood = await _service.PostFood(requestFood);
 
-            return CreatedAtAction(nameof(GetFoodById), new {id = food.Id}, food);
+            if (createdFood.IsFailure) return ControllerExtensions.ToActionResult(this, createdFood);
+
+            return ControllerExtensions.ToCreatedAtActionResult(this, createdFood, nameof(GetFoodById), new { id = createdFood.Value!.Id });
         }
 
         [HttpPut("{id}")]
-        public IActionResult PutFood(int id, Food food)
+        public async Task<IActionResult> PutFood(int id, RequestFoodDTO requestFood)
         {
-            var success = _service.PutFood(id, food);
-
-            if (success == null) return NotFound();
-
-            return NoContent();
+            var success = await _service.PutFood(id, requestFood);
+            return ControllerExtensions.ToActionResult(this, success);
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteFood(int id) 
-        { 
-            var success = _service.DeleteFood(id);
-
-            if(!success) return NotFound();
-
-            return NoContent();
+        public async Task<IActionResult> DeleteFood(int id)
+        {
+            var success = await _service.DeleteFood(id);
+            return ControllerExtensions.ToActionResult(this, success);
         }
     }
 }

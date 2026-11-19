@@ -1,52 +1,113 @@
-﻿using FoodDelivery.Entity;
-using FoodDelivery.Repository;
+﻿using FoodDelivery.DTO.Restaurant;
+using FoodDelivery.Entity;
+using FoodDelivery.Repository.Interfaces;
+using FoodDelivery.Result;
+using FoodDelivery.Result.Error;
+using FoodDelivery.Service.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace FoodDelivery.Service
 {
     public class RestaurantService : IRestaurantService
     {
-        private readonly IRestaurantRepository _repository;
+        private readonly IRepository<int, Restaurant> _repository;
 
-        public RestaurantService(IRestaurantRepository repository)
+        public RestaurantService(IRepository<int, Restaurant> repository)
         {
             _repository = repository;
         }
 
-        public IEnumerable<Restaurant> GetRestaurantList()
+        public async Task<IEnumerable<ResponseRestaurantDTO>> GetRestaurantList()
         {
-            return _repository.GetRestaurantList();
+            var restaurantsList = await _repository.GetAll();
+
+            var restaurantsDTOList = new List<ResponseRestaurantDTO>();
+            foreach (var restaurant in restaurantsList)
+            {
+                var restaurantDto = CreateRestaurantDTO(restaurant);
+                restaurantsDTOList.Add(restaurantDto);
+            }
+
+            return restaurantsDTOList;
         }
 
-        public Restaurant? GetRestaurantById(int id)
+        public async Task<Reply<ResponseRestaurantDTO>> GetRestaurantById(int id)
         {
-            return _repository.GetRestaurantById(id);
+            var restaurant = await _repository.GetById(id);
+            if (restaurant == null) return Reply<ResponseRestaurantDTO>.Failure(ErrorCore.NotFound($"Restaurant with id: '{id}' was not found!"));
+
+            var restaurantDto = CreateRestaurantDTO(restaurant);
+            return Reply<ResponseRestaurantDTO>.Success(restaurantDto);
         }
 
-        public Restaurant? PostRestaurant(Restaurant restaurant)
+        public async Task<Reply<ResponseRestaurantDTO>> PostRestaurant(RequestRestaurantDTO requestRestaurant)
         {
-            //Todo checks
-            _repository.AddRestaurant(restaurant);
+            if (requestRestaurant == null) return Reply<ResponseRestaurantDTO>.Failure(ErrorCore.Validation($"Restaurant was not forwarded!"));
+            //Todo check for restaurant in the same position
+
+            var restaurant = MappingRestaurant(0, requestRestaurant);
+            await _repository.Add(restaurant);
+
+            var restaurantDto = CreateRestaurantDTO(restaurant);
+            return Reply<ResponseRestaurantDTO>.Success(restaurantDto);
+        }
+
+        public async Task<Reply> PutRestaurant(int id, RequestRestaurantDTO requestRestaurant)
+        {
+            var existingRestaurant = await _repository.GetById(id);
+            if (existingRestaurant == null) return Reply.Failure(ErrorCore.NotFound($"Restaurant by id: '{id}' was not forwarded!"));
+            //Todo check for restaurant in the same position
+
+            var restaurant = MappingRestaurant(id, requestRestaurant);
+            try
+            {
+                await _repository.Update(restaurant);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return Reply.Failure(ErrorCore.NotFound($"Restaurant with id: {id} was not found (Id was probably changed/deleted)."));
+            }
+            return Reply.Success();
+        }
+
+        public async Task<Reply> DeleteRestaurant(int id)
+        {
+            var existingRestaurant = await _repository.GetById(id);
+            if (existingRestaurant == null) return Reply.Failure(ErrorCore.NotFound($"Restaurant by id: '{id}' was not forwarded!"));
+
+            try
+            {
+                await _repository.Delete(existingRestaurant);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return Reply.Failure(ErrorCore.NotFound($"Restaurant with id: {id} was not found (Id was probably changed/deleted)."));
+            }
+            return Reply.Success();
+        }
+
+        private ResponseRestaurantDTO CreateRestaurantDTO(Restaurant restaurant)
+        {
+            var restaurantDto = new ResponseRestaurantDTO
+            {
+                Id = restaurant.Id,
+                GeoLat = restaurant.GeoLat,
+                GeoLon = restaurant.GeoLon
+            };
+
+            return restaurantDto;
+        }
+
+        private Restaurant MappingRestaurant(int id, RequestRestaurantDTO requestRestaurant)
+        {
+            Restaurant restaurant = new Restaurant
+            {
+                Id = id,
+                GeoLat = requestRestaurant.GeoLat,
+                GeoLon = requestRestaurant.GeoLon
+            };
+
             return restaurant;
-        }
-
-        public Restaurant? PutRestaurant(int id, Restaurant restaurant)
-        {
-            var existingRestaurant = _repository.GetRestaurantById(id);
-            //Todo checks and returns of correct type for status codes
-            if (existingRestaurant == null || id != restaurant.Id) return null;
-
-            _repository.UpdateRestaurant(restaurant);
-            return restaurant;
-        }
-
-        public bool DeleteRestaurant(int id)
-        {
-            var existingRestaurant = _repository.GetRestaurantById(id);
-            //Todo checks and returns of correct type for status codes
-            if (existingRestaurant == null) return false;
-
-            _repository.RemoveRestaurant(existingRestaurant);
-            return true;
         }
     }
 }

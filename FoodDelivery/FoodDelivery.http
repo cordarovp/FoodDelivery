@@ -1,6 +1,116 @@
-@FoodDelivery_HostAddress = http://localhost:5030
+@FoodDelivery_HostAddress = https://localhost:7015
 
-GET {{FoodDelivery_HostAddress}}/weatherforecast/
-Accept: application/json
+@id=14
+#FOODS----------------------------------------
+
+GET {{FoodDelivery_HostAddress}}/api/foods
 
 ###
+
+GET {{FoodDelivery_HostAddress}}/api/foods/{{id}}
+
+###
+
+POST {{FoodDelivery_HostAddress}}/api/foods
+Content-Type: application/json
+
+{
+  "name": "pilav",
+  "price": 99.99
+}
+
+###
+
+PUT {{FoodDelivery_HostAddress}}/api/foods/{{id}}
+Content-Type: application/json
+
+{
+  "id":9,
+  "name": "hrana",
+  "price": 559.99
+}
+
+###
+
+DELETE {{FoodDelivery_HostAddress}}/api/foods/{{id}}
+
+###
+
+#RESTAURANTS-----------------------------------
+
+
+GET {{FoodDelivery_HostAddress}}/api/restaurants
+
+###
+
+GET {{FoodDelivery_HostAddress}}/api/restaurants/{{id}}
+
+###
+
+POST {{FoodDelivery_HostAddress}}/api/restaurants
+Content-Type: application/json
+
+{
+  "geolat": 1,
+  "geolon": 1
+}
+
+###
+
+PUT {{FoodDelivery_HostAddress}}/api/restaurants/{{id}}
+Content-Type: application/json
+
+{
+  "geolat": 1000,
+  "geolon": 5000
+}
+
+###
+
+DELETE {{FoodDelivery_HostAddress}}/api/restaurants/{{id}}
+
+###
+
+#USERS----------------------------------------
+
+GET {{FoodDelivery_HostAddress}}/api/users
+
+###
+
+GET {{FoodDelivery_HostAddress}}/api/users/{{id}}
+
+###
+
+POST {{FoodDelivery_HostAddress}}/api/users
+Content-Type: application/json
+
+{
+  "firstname": "Dusan",
+  "lastname": "Duskovic",
+  "geolat": 1,
+  "geolon": 1,
+  "username": "Dusko",
+  "password": "Dusan123"
+}
+
+###
+
+PUT {{FoodDelivery_HostAddress}}/api/users/{{id}}
+Content-Type: application/json
+
+{
+  "firstname": "Milos",
+  "lastname": "Milosevic",
+  "geolat": 1,
+  "geolon": 1,
+  "username": "Mica",
+  "password": "Mica123"
+}
+
+###
+
+DELETE {{FoodDelivery_HostAddress}}/api/users/{{id}}
+
+###
+
+

@@ -1,5 +1,10 @@
-﻿using FoodDelivery.Entity;
-using FoodDelivery.Repository;
+﻿using FoodDelivery.DTO.User;
+using FoodDelivery.Entity;
+using FoodDelivery.Repository.Interfaces;
+using FoodDelivery.Result;
+using FoodDelivery.Result.Error;
+using FoodDelivery.Service.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace FoodDelivery.Service
 {
@@ -12,13 +17,13 @@ namespace FoodDelivery.Service
             _repository = repository;
         }
 
-        public IEnumerable<UserDTO> GetUserDTOList()
+        public async Task<IEnumerable<ResponseUserDTO>> GetUserDTOList()
         {
-            var usersList = _repository.GetUserList();
+            var usersList = await _repository.GetAll();
 
-            var usersDTOList = new List<UserDTO>();
+            var usersDTOList = new List<ResponseUserDTO>();
             foreach (var user in usersList)
-            { 
+            {
                 var userDto = CreateUserDTO(user);
                 usersDTOList.Add(userDto);
             }
@@ -26,52 +31,65 @@ namespace FoodDelivery.Service
             return usersDTOList;
         }
 
-        public UserDTO? GetUserDTOById(int id)
+        public async Task<Reply<ResponseUserDTO>> GetUserDTOById(int id)
         {
-            var user = _repository.GetUserId(id);
-            if (user == null) return null;
+            var user = await _repository.GetById(id);
+            if (user == null) return Reply<ResponseUserDTO>.Failure(ErrorCore.NotFound($"User with id: '{id}' was not found!"));
             var userDto = CreateUserDTO(user);
-            return userDto;
+            return Reply<ResponseUserDTO>.Success(userDto);
         }
 
-        public User? GetUserById(int id)
+        public async Task<Reply<ResponseUserDTO>> PostUser(RequestUserDTO requestUser)
         {
-            return _repository.GetUserId(id);
+            if (requestUser == null) return Reply<ResponseUserDTO>.Failure(ErrorCore.Validation("User was not forwarded!"));
+            if (await IsUsernameTakenAsync(0, requestUser)) return Reply<ResponseUserDTO>.Failure(ErrorCore.Conflict($"User with username: '{requestUser.Username}' already exists!"));
+
+            var user = MappingUser(0, requestUser);
+            await _repository.Add(user);
+
+            var userDto = CreateUserDTO(user);
+            return Reply<ResponseUserDTO>.Success(userDto);
         }
 
-        public User? PostUser(User user)
+        public async Task<Reply> PutUser(int id, RequestUserDTO requestUser)
         {
-            //Todo checks and returns of correct type for status codes
-            if (!CheckUsernameAvailability(user)) return null;
+            var existingUser = await _repository.GetById(id);
 
-            _repository.AddUser(user);
-            return user;
+            if (existingUser == null) return Reply.Failure(ErrorCore.NotFound($"User with id: {id} was not found!"));
+            if (await IsUsernameTakenAsync(id, requestUser)) return Reply.Failure(ErrorCore.Conflict($"User with username: '{requestUser.Username}' already exists!"));
+
+            var user = MappingUser(id, requestUser, existingUser.IsAdmin);
+            try
+            {
+                await _repository.Update(user);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return Reply.Failure(ErrorCore.NotFound($"User with id: {id} was not found (Id was probably changed/deleted)."));
+            }
+            return Reply.Success();
         }
 
-        public User? PutUser(int id, User user)
+        public async Task<Reply> DeleteUser(int id)
         {
-            var existingUser = _repository.GetUserId(id);
-            //Todo checks and returns of correct type for status codes
-            if (existingUser == null || id != user.Id) return null;
-            if (!CheckUsernameAvailability(user)) return null;
+            var existingUser = await _repository.GetById(id);
+            if (existingUser == null) return Reply.Failure(ErrorCore.NotFound($"User with id: {id} was not found!"));
 
-            _repository.UpdateUser(user);
-            return user;
+            try
+            {
+                await _repository.Delete(existingUser);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return Reply.Failure(ErrorCore.NotFound($"User with id: {id} was not found (Id was probably changed/deleted)."));
+            }
+            return Reply.Success();
         }
 
-        public bool DeleteUserint(int id)
-        {
-            var existingUser = _repository.GetUserId(id);
-            //Todo checks and returns of correct type for status codes
-            if (existingUser == null) return false;
 
-            _repository.RemoveUser(existingUser);
-            return true;
-        }
-
-        private UserDTO CreateUserDTO(User existingUser)
+        private ResponseUserDTO CreateUserDTO(User existingUser)
         {
-            var userDto = new UserDTO
+            var userDto = new ResponseUserDTO
             {
                 Id = existingUser.Id,
                 FullName = existingUser.FirstName + " " + existingUser.LastName,
@@ -83,22 +101,30 @@ namespace FoodDelivery.Service
             return userDto;
         }
 
-        //This method will return true if the forwarded username is not being used.
-        private bool CheckUsernameAvailability(User updateUser)
+        //Todo IsAdmin set and autharization
+        private User MappingUser(int id, RequestUserDTO requestUser, bool isAdmin = false)
         {
-            var usersList = _repository.GetUserList();
-
-            foreach (var existingUser in usersList)
+            User user = new User
             {
-                if (existingUser.Username == updateUser.Username)
-                {
-                    if(existingUser.Id == updateUser.Id)
-                        return true;
-                    else
-                        return false;
-                }else continue;
-            }
-            return true;
+                Id = id,
+                FirstName = requestUser.FirstName,
+                LastName = requestUser.LastName,
+                GeoLat = requestUser.GeoLat,
+                GeoLon = requestUser.GeoLon,
+                Username = requestUser.Username,
+                Password = requestUser.Password,
+                IsAdmin = isAdmin
+            };
+
+            return user;
+        }
+
+        private async Task<bool> IsUsernameTakenAsync(int id, RequestUserDTO updateUser)
+        {
+            var user = await _repository.FindUserWithUsername(updateUser.Username);
+            if (user == null) return false;
+            if (user.Id.Equals(id)) return false;
+            else return true;
         }
     }
 }
