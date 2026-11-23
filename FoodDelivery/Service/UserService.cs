@@ -44,10 +44,10 @@ namespace FoodDelivery.Service
             if (requestUser == null) return Reply<ResponseUserDTO>.Failure(ErrorCore.Validation("User was not forwarded!"));
             if (await IsUsernameTakenAsync(0, requestUser)) return Reply<ResponseUserDTO>.Failure(ErrorCore.Conflict($"User with username: '{requestUser.Username}' already exists!"));
 
-            var user = MappingUser(0, requestUser);
-            await _repository.Add(user);
+            var newUser = MappingNewUser(0, requestUser);
+            await _repository.Add(newUser);
 
-            var userDto = CreateUserDTO(user);
+            var userDto = CreateUserDTO(newUser);
             return Reply<ResponseUserDTO>.Success(userDto);
         }
 
@@ -58,10 +58,10 @@ namespace FoodDelivery.Service
             if (existingUser == null) return Reply.Failure(ErrorCore.NotFound($"User with id: {id} was not found!"));
             if (await IsUsernameTakenAsync(id, requestUser)) return Reply.Failure(ErrorCore.Conflict($"User with username: '{requestUser.Username}' already exists!"));
 
-            var user = MappingUser(id, requestUser, existingUser.IsAdmin);
+            MappingUser(existingUser, requestUser);
             try
             {
-                await _repository.Update(user);
+                await _repository.Update(existingUser);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -86,7 +86,6 @@ namespace FoodDelivery.Service
             return Reply.Success();
         }
 
-
         private ResponseUserDTO CreateUserDTO(User existingUser)
         {
             var userDto = new ResponseUserDTO
@@ -102,18 +101,27 @@ namespace FoodDelivery.Service
         }
 
         //Todo IsAdmin set and autharization
-        private User MappingUser(int id, RequestUserDTO requestUser, bool isAdmin = false)
+        private void MappingUser(User existingUser, RequestUserDTO requestUser)
         {
-            User user = new User
+            existingUser.FirstName = requestUser.FirstName;
+            existingUser.LastName = requestUser.LastName;
+            existingUser.GeoLat = requestUser.GeoLat;
+            existingUser.GeoLon = requestUser.GeoLon;
+            existingUser.Username = requestUser.Username;
+            existingUser.Password = requestUser.Password;
+        }
+
+        private User MappingNewUser(int id, RequestUserDTO requestUser)
+        {
+            var user = new User
             {
-                Id = id,
+                Id = 0,
                 FirstName = requestUser.FirstName,
                 LastName = requestUser.LastName,
                 GeoLat = requestUser.GeoLat,
                 GeoLon = requestUser.GeoLon,
-                Username = requestUser.Username,
-                Password = requestUser.Password,
-                IsAdmin = isAdmin
+                Username =requestUser.Username,
+                Password = requestUser.Password
             };
 
             return user;
