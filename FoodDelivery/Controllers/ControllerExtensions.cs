@@ -47,6 +47,10 @@ namespace FoodDelivery.Controllers
                     statusCode = StatusCodes.Status409Conflict;
                     break;
 
+                case ErrorType.Unprocessable:
+                    statusCode = StatusCodes.Status422UnprocessableEntity;
+                    break;
+
                 default:
                     statusCode = StatusCodes.Status500InternalServerError;
                     break;

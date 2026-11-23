@@ -22,5 +22,6 @@ namespace FoodDelivery.Entity
         public required string Password { get; set; }
         [Required(ErrorMessage = "Must be set for all users!")]
         public bool IsAdmin { get; set; }
+        public ICollection<Order> Orders = new List<Order>();
     }
 }

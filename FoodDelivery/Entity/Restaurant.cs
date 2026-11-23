@@ -9,5 +9,6 @@ namespace FoodDelivery.Entity
         public double GeoLat { get; set; }
         [Required(ErrorMessage = "Requires longitude of Restaurant!")]
         public double GeoLon { get; set; }
+        public ICollection<Order> Orders { get; set; } = new List<Order>();
     }
 }

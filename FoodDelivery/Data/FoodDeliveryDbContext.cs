@@ -11,5 +11,6 @@ namespace FoodDelivery.Data
         public DbSet<Food> Foods { get; set; }
         public DbSet<Restaurant> Restaurants { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<Order> Orders { get; set; } 
     }
 }
