@@ -8,12 +8,18 @@ namespace FoodDelivery.Data
         public static List<User> GetUsers() =>
             [
                 new User {FirstName = "Admin", LastName = "Admin", GeoLat = 0, GeoLon = 0 , Username = "Admin", Password = "admin", IsAdmin = true},
-                new User {FirstName = "TestName", LastName = "TestLastName", GeoLat = 90, GeoLon = 180, Username = "TestUsername", Password = "password", IsAdmin = false}
+                new User {FirstName = "Lana", LastName = "Jones", GeoLat = 45, GeoLon = 90, Username = "LanaJ", Password = "!@#123@#!", IsAdmin = false},
+                new User {FirstName = "Andrew", LastName = "Smith", GeoLat = 34.44, GeoLon = 56.678, Username = "MrSmith", Password = "Smith123", IsAdmin = false}
             ];
 
         public static List<Food> GetFoods() =>
             [
-                new Food {Name = "TestFood", Price = 1.99m}
+                new Food {Name = "Bolognese", Price = 349.99m},
+                new Food {Name = "Capricciosa", Price = 399.99m},
+                new Food {Name = "Lasagne", Price = 499.99m},
+                new Food {Name = "Fried chicken breast with Fries", Price = 559.99m},
+                new Food {Name = "Beef stew", Price = 479.99m},
+                new Food {Name = "Macaroni and cheese", Price = 129.99m}
             ];
 
         public static List<Restaurant> GetRestaurants() =>
