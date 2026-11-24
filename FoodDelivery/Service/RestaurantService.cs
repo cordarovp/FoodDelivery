@@ -45,7 +45,7 @@ namespace FoodDelivery.Service
             if (requestRestaurant == null) return Reply<ResponseRestaurantDTO>.Failure(ErrorCore.Validation($"Restaurant was not forwarded!"));
             //Todo check for restaurant in the same position
 
-            var restaurant = MappingNewRestaurant(0, requestRestaurant);
+            var restaurant = MappingNewRestaurant(requestRestaurant);
             await _repository.Add(restaurant);
 
             var restaurantDto = CreateRestaurantDTO(restaurant);
@@ -98,11 +98,11 @@ namespace FoodDelivery.Service
             return restaurantDto;
         }
 
-        private Restaurant MappingNewRestaurant(int id, RequestRestaurantDTO requestRestaurant)
+        private Restaurant MappingNewRestaurant(RequestRestaurantDTO requestRestaurant)
         {
             Restaurant restaurant = new Restaurant
             {
-                Id = id,
+                Id = default,
                 GeoLat = requestRestaurant.GeoLat,
                 GeoLon = requestRestaurant.GeoLon
             };

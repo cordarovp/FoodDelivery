@@ -2,9 +2,9 @@
 {
     public class ResponseOrderDTO
     {
-        public int orderId { get; set; }
-        public required string userName { get; set; }
-        public required string foodName { get; set; }
-        public required int restaurantId { get; set; }
+        public int OrderId { get; set; }
+        public required string UserName { get; set; }
+        public required string FoodName { get; set; }
+        public required int RestaurantId { get; set; }
     }
 }

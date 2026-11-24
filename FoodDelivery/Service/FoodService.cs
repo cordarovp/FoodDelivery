@@ -44,7 +44,7 @@ namespace FoodDelivery.Service
             if (requestFood == null) return Reply<ResponseFoodDTO>.Failure(ErrorCore.Validation("Food was not forwarded!"));
             if (requestFood.Price <= 0) return Reply<ResponseFoodDTO>.Failure(ErrorCore.Validation("Cannot set Food price to zero or negative number!"));
 
-            var food = MappingNewFood(0, requestFood);
+            var food = MappingNewFood(requestFood);
             await _repository.Add(food);
 
             var foodDto = CreateFoodDTO(food);
@@ -98,11 +98,11 @@ namespace FoodDelivery.Service
             return foodDto;
         }
 
-        private Food MappingNewFood(int id, RequestFoodDTO requestFood)
+        private Food MappingNewFood(RequestFoodDTO requestFood)
         {
             Food food = new Food
             {
-                Id = id,
+                Id = default,
                 Name = requestFood.Name,
                 Price = requestFood.Price
             };

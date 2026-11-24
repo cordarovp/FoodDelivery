@@ -43,8 +43,8 @@ Checklist for project:
 -Database:
   - [x] Relation database of choice (SQLServer with LocalDb)
   - [x] Code-first approach
-  - [ ] Every change thru migration
-  - [ ] Seed data
+  - [x] Every change thru migration
+  - [x] Seed data
 
 API Documentation:
   - [x] SwaggerUI Added
@@ -61,4 +61,4 @@ API Documentation:
   - [ ] Create Account
   - [x] Calculate nearest restaurant
   - [x] Delegate to next nearest available restaurant
-  - [ ] Restaurant busy for 15 min after order
+  - [x] Restaurant busy for 15 min after order

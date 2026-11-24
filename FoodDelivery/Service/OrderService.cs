@@ -51,8 +51,6 @@ namespace FoodDelivery.Service
 
         public async Task<Reply<ResponseOrderDTO>> PostOrder(RequestOrderDTO requestOrder)
         {
-            if (requestOrder == null) return Reply<ResponseOrderDTO>.Failure(ErrorCore.Validation("Order was not forwaded!"));
-
             var foundUser = await _userRepository.GetById(requestOrder.userId);
             if (foundUser == null) return Reply<ResponseOrderDTO>.Failure(ErrorCore.UnprocessableContent($"User with id: '{requestOrder.userId}' does not exist!"));
 
@@ -60,10 +58,9 @@ namespace FoodDelivery.Service
             if (foundFood == null) return Reply<ResponseOrderDTO>.Failure(ErrorCore.UnprocessableContent($"Food with id: '{requestOrder.foodId}' does not exist!"));
 
             var foundRestaurant = await FindNearestAvailableRestaurantAsync(foundUser.GeoLat, foundUser.GeoLon);
-            if (foundRestaurant == null) return Reply<ResponseOrderDTO>.Failure(ErrorCore.NotFound($"No available Restaurants found for this order, please try again later!"));
+            if (foundRestaurant == null) return Reply<ResponseOrderDTO>.Failure(ErrorCore.Conflict($"No available Restaurants found for this order, please try again later!"));
 
-            var order = MappingNewOrder(0, foundUser.Id, foundFood.Id, foundRestaurant.Id);
-            //TODO Catching exception
+            var order = MappingNewOrder(foundUser.Id, foundFood.Id, foundRestaurant.Id);
             try
             {
                 await _repository.Add(order);
@@ -114,11 +111,11 @@ namespace FoodDelivery.Service
             return orderDto;
         }
 
-        private Order MappingNewOrder(int id, int userId, int foodId, int restaurantId)
+        private Order MappingNewOrder(int userId, int foodId, int restaurantId)
         {
             Order order = new Order
             {
-                Id = id,
+                Id = default,
                 CreatedAt = DateTime.UtcNow,
                 UserId = userId,
                 FoodId = foodId,
