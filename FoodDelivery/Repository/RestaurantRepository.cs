@@ -7,13 +7,15 @@ namespace FoodDelivery.Repository
 {
     public class RestaurantRepository : Repository<int, Restaurant>, IRestaurantRepository
     {
-        public RestaurantRepository(FoodDeliveryDbContext context) : base(context)
+        private readonly double _deliveryTimeout;
+        public RestaurantRepository(FoodDeliveryDbContext context, IConfiguration config) : base(context)
         {
+            _deliveryTimeout = config.GetValue<double>("RestaurantSettings:DeliveryTimeout", 15);
         }
 
         public async Task<IEnumerable<Restaurant>> GetAllAvailableRestaurants(DateTime orderTime)
         {
-            var minimumTime = orderTime.AddSeconds(-15); //Set to Seconds for testing purposes
+            var minimumTime = orderTime.AddSeconds(-_deliveryTimeout); //Set to Seconds for testing purposes
 
             return await _dbSet.Where(r => r.LatestOrderTime == null
                                      || r.LatestOrderTime <= minimumTime)
