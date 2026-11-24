@@ -5,6 +5,7 @@ using FoodDelivery.Result;
 using FoodDelivery.Result.Error;
 using FoodDelivery.Service.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace FoodDelivery.Service
 {
@@ -13,12 +14,12 @@ namespace FoodDelivery.Service
         private readonly IOrderRepository _repository;
         private readonly IUserRepository _userRepository;
         private readonly IRepository<int, Food> _foodRepository;
-        private readonly IRepository<int, Restaurant> _restaurantsRepository;
+        private readonly IRestaurantRepository _restaurantsRepository;
 
         public OrderService(IOrderRepository repository,
            IUserRepository userRepository,
            IRepository<int, Food> foodRepository,
-           IRepository<int, Restaurant> restaurantRepository)
+           IRestaurantRepository restaurantRepository)
         {
             _repository = repository;
             _userRepository = userRepository;
@@ -58,13 +59,19 @@ namespace FoodDelivery.Service
             var foundFood = await _foodRepository.GetById(requestOrder.foodId);
             if (foundFood == null) return Reply<ResponseOrderDTO>.Failure(ErrorCore.UnprocessableContent($"Food with id: '{requestOrder.foodId}' does not exist!"));
 
-            var restaurantList = await _restaurantsRepository.GetAll();
-            var foundRestaurant = FindNearestAvailableRestaurant(foundUser.GeoLat, foundUser.GeoLon, restaurantList);
-            if (foundRestaurant == null) return Reply<ResponseOrderDTO>.Failure(ErrorCore.NotFound("No available Restaurants found for this order!"));
+            var foundRestaurant = await FindNearestAvailableRestaurantAsync(foundUser.GeoLat, foundUser.GeoLon);
+            if (foundRestaurant == null) return Reply<ResponseOrderDTO>.Failure(ErrorCore.NotFound($"No available Restaurants found for this order, please try again later!"));
 
             var order = MappingNewOrder(0, foundUser.Id, foundFood.Id, foundRestaurant.Id);
-            //TODO Catching expection
-            await _repository.Add(order);
+            //TODO Catching exception
+            try
+            {
+                await _repository.Add(order);
+            }
+            catch(DbUpdateConcurrencyException)
+            {
+                return Reply<ResponseOrderDTO>.Failure(ErrorCore.Conflict("Restaurant has already been used!"));
+            }
 
             var fullOrder = await _repository.GetByIdWithDetails(order.Id);
             if (fullOrder == null) return Reply<ResponseOrderDTO>.Failure(ErrorCore.NotFound($"The Order with details by id: '{order.Id}' could not be found!"));
@@ -119,21 +126,20 @@ namespace FoodDelivery.Service
             };
             return order;
         }
-        private Restaurant? FindNearestAvailableRestaurant(double latitude, double longitude, IEnumerable<Restaurant> restaurants)
+        private async Task<Restaurant?> FindNearestAvailableRestaurantAsync(double latitude, double longitude)
         {
             const double degToRad = Math.PI / 180;
             double cosUserLat = Math.Cos(latitude * degToRad);
-            
+            var availableRestaurants = await _restaurantsRepository.GetAllAvailableRestaurants(DateTime.UtcNow);
+            if (availableRestaurants.IsNullOrEmpty()) return null;
 
             Restaurant? nearest = null;
             double minA = double.MaxValue;
 
-            foreach (var restaurant in restaurants)
+            foreach (var restaurant in availableRestaurants)
             {
-                //if(restaurant.Busy >= DateTime.Now) continue;
-
-                double dLat = (restaurant.GeoLat - latitude) * degToRad;
-                double dLon = (restaurant.GeoLon - longitude) * degToRad;
+                double dLat = (restaurant!.GeoLat - latitude) * degToRad;
+                double dLon = (restaurant!.GeoLon - longitude) * degToRad;
 
                 double sinHalfLat = Math.Sin(dLat * 0.5);
                 double sinHalfLon = Math.Sin(dLon * 0.5);
@@ -146,9 +152,8 @@ namespace FoodDelivery.Service
                     nearest = restaurant;
                 }
             }
-
+            if(nearest != null) nearest.LatestOrderTime = DateTime.UtcNow;
             return nearest;
-
         }
     }
 }

@@ -89,6 +89,15 @@ namespace FoodDelivery.Migrations
                     b.Property<double>("GeoLon")
                         .HasColumnType("float");
 
+                    b.Property<DateTime?>("LatestOrderTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
                     b.HasKey("Id");
 
                     b.ToTable("Restaurants");
