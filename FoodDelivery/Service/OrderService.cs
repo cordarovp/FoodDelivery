@@ -51,11 +51,11 @@ namespace FoodDelivery.Service
 
         public async Task<Reply<ResponseOrderDTO>> PostOrder(RequestOrderDTO requestOrder)
         {
-            var foundUser = await _userRepository.GetById(requestOrder.userId);
-            if (foundUser == null) return Reply<ResponseOrderDTO>.Failure(ErrorCore.UnprocessableContent($"User with id: '{requestOrder.userId}' does not exist!"));
+            var foundUser = await _userRepository.GetById(requestOrder.UserId);
+            if (foundUser == null) return Reply<ResponseOrderDTO>.Failure(ErrorCore.UnprocessableContent($"User with id: '{requestOrder.UserId}' does not exist!"));
 
-            var foundFood = await _foodRepository.GetById(requestOrder.foodId);
-            if (foundFood == null) return Reply<ResponseOrderDTO>.Failure(ErrorCore.UnprocessableContent($"Food with id: '{requestOrder.foodId}' does not exist!"));
+            var foundFood = await _foodRepository.GetById(requestOrder.FoodId);
+            if (foundFood == null) return Reply<ResponseOrderDTO>.Failure(ErrorCore.UnprocessableContent($"Food with id: '{requestOrder.FoodId}' does not exist!"));
 
             var foundRestaurant = await FindNearestAvailableRestaurantAsync(foundUser.GeoLat, foundUser.GeoLon);
             if (foundRestaurant == null) return Reply<ResponseOrderDTO>.Failure(ErrorCore.Conflict($"No available Restaurants found for this order, please try again later!"));
@@ -102,10 +102,10 @@ namespace FoodDelivery.Service
         {
             var orderDto = new ResponseOrderDTO
             {
-                orderId = existingOrder.Id,
-                userName = existingOrder.User.FirstName + " " + existingOrder.User.LastName,
-                foodName = existingOrder.Food.Name,
-                restaurantId = existingOrder.RestaurantId
+                OrderId = existingOrder.Id,
+                UserName = existingOrder.User.FirstName + " " + existingOrder.User.LastName,
+                FoodName = existingOrder.Food.Name,
+                RestaurantId = existingOrder.RestaurantId
             };
 
             return orderDto;

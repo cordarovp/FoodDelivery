@@ -35,7 +35,7 @@ namespace FoodDelivery.Controllers
         {
             var createdOrder = await _service.PostOrder(requestOrder);
 
-            return this.ToCreatedAtActionResult(createdOrder, nameof(GetOrderById), new { id = createdOrder.Value?.orderId });
+            return this.ToCreatedAtActionResult(createdOrder, nameof(GetOrderById), new { id = createdOrder.Value?.OrderId });
         }
 
         //Should updating orders be available?
