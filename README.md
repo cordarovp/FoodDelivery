@@ -21,13 +21,13 @@ Checklist for project:
     - [x] Price
     - [ ] Picture
 
-  - [ ] List Food
-  - [ ] Food Details
-  - [ ] Delete Food
-  - [ ] Add Restaurant
-  - [ ] Delete Restaurant
+  - [x] List Food
+  - [x] Food Details
+  - [x] Delete Food
+  - [x] Add Restaurant
+  - [x] Delete Restaurant
   - [ ] Order Food
-  - [ ] User sing up
+  - [x] User sing up
   - [ ] User login
 
 -Roles:
@@ -60,5 +60,5 @@ API Documentation:
 -Other:
   - [ ] Create Account
   - [x] Calculate nearest restaurant
-  - [ ] Delegate to next nearest available restaurant
+  - [x] Delegate to next nearest available restaurant
   - [ ] Restaurant busy for 15 min after order
