@@ -14,9 +14,12 @@ namespace FoodDelivery
             var builder = WebApplication.CreateBuilder(args);
             var connectionString = builder.Configuration.GetConnectionString("FoodDeliveryDbContext") ?? throw new InvalidOperationException("Connection string 'FoodDeliveryDbContext' not found.");
 
-            builder.Services.AddDbContext<FoodDeliveryDbContext>(options =>
+            builder.Services.AddSingleton<AuditingInterceptor>();
+            builder.Services.AddDbContext<FoodDeliveryDbContext>((serviceProvider, options )=>
             {
-                options.UseSqlServer(connectionString);
+                var interceptor = serviceProvider.GetRequiredService<AuditingInterceptor>();
+
+                options.UseSqlServer(connectionString).AddInterceptors(interceptor);
 
                 options.UseSeeding((context, _) => SeedData.Seed(context));
             });
@@ -41,6 +44,13 @@ namespace FoodDelivery
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
+                using (var scope = app.Services.CreateScope())
+                {
+                    var dbContext = scope.ServiceProvider.GetRequiredService<FoodDeliveryDbContext>();
+                    dbContext.Database.EnsureDeleted();
+                    dbContext.Database.Migrate();
+                }
+
                 app.MapOpenApi();
                 app.UseSwaggerUI(options =>
                 {

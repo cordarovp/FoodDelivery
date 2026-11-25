@@ -102,7 +102,6 @@ namespace FoodDelivery.Service
         {
             Food food = new Food
             {
-                Id = default,
                 Name = requestFood.Name,
                 Price = requestFood.Price
             };

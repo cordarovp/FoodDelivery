@@ -102,7 +102,6 @@ namespace FoodDelivery.Service
         {
             Restaurant restaurant = new Restaurant
             {
-                Id = default,
                 GeoLat = requestRestaurant.GeoLat,
                 GeoLon = requestRestaurant.GeoLon
             };

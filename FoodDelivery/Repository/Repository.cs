@@ -1,5 +1,5 @@
 ﻿using FoodDelivery.Data;
-using FoodDelivery.Entity;
+using FoodDelivery.Entity.Interfaces;
 using FoodDelivery.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
 

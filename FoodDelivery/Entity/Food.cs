@@ -1,9 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using FoodDelivery.Entity.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
 namespace FoodDelivery.Entity
 {
-    public class Food : IEntity<int>
+    public class Food : IEntity<int>, ISoftDeletable
     {
         public int Id { get; set; }
         [Required(ErrorMessage = "Food must have a name!")]
@@ -12,5 +13,7 @@ namespace FoodDelivery.Entity
         [Required(ErrorMessage = "Food must have a set price!")]
         [Precision(14, 2)]
         public decimal Price { get; set; }
+        public bool IsDeleted { get; set; }
+        public DateTime? DeletedAt { get; set; }
     }
 }

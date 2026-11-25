@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using FoodDelivery.Entity.Interfaces;
+using System.ComponentModel.DataAnnotations;
 
 namespace FoodDelivery.Entity
 {
-    public class Restaurant : IEntity<int>
+    public class Restaurant : IEntity<int>, ISoftDeletable
     {
         public int Id { get; set; }
         [Required(ErrorMessage = "Requires latidude of Restaurant!")]
@@ -13,5 +14,8 @@ namespace FoodDelivery.Entity
         public DateTime? LatestOrderTime { get; set; }
         [Timestamp]
         public byte[] RowVersion { get; set; } = null!;
+
+        public bool IsDeleted { get; set; }
+        public DateTime? DeletedAt { get; set; }
     }
 }

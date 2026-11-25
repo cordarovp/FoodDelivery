@@ -1,4 +1,4 @@
-﻿using FoodDelivery.Entity;
+﻿using FoodDelivery.Entity.Interfaces;
 
 namespace FoodDelivery.Repository.Interfaces
 {

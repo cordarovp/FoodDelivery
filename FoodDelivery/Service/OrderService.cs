@@ -58,9 +58,21 @@ namespace FoodDelivery.Service
             if (foundFood == null) return Reply<ResponseOrderDTO>.Failure(ErrorCore.UnprocessableContent($"Food with id: '{requestOrder.FoodId}' does not exist!"));
 
             var foundRestaurant = await FindNearestAvailableRestaurantAsync(foundUser.GeoLat, foundUser.GeoLon);
-            if (foundRestaurant == null) return Reply<ResponseOrderDTO>.Failure(ErrorCore.Conflict($"No available Restaurants found for this order, please try again later!"));
+            if (foundRestaurant == null)
+            {
+                var cancelledStatus = OrderStatus.Cancelled;
+                var failedOrder = MappingNewOrder(foundUser.Id, foundFood.Id, null, cancelledStatus);
 
-            var order = MappingNewOrder(foundUser.Id, foundFood.Id, foundRestaurant.Id);
+                await _repository.Add(failedOrder);
+                var failedFullOrder = await _repository.GetByIdWithDetails(failedOrder.Id);
+                if (failedFullOrder == null) return Reply<ResponseOrderDTO>.Failure(ErrorCore.NotFound($"The Order with details by id: '{failedOrder.Id}' could not be found!"));
+                
+                var cancelledDto = CreateOrderDTO(failedFullOrder);
+                return Reply<ResponseOrderDTO>.Failure(ErrorCore.Conflict($"Order was cancelled, no available restaurants were found. Please try again later!"));
+            }
+
+            var createdStatus = OrderStatus.Created;
+            var order = MappingNewOrder(foundUser.Id, foundFood.Id, foundRestaurant.Id, createdStatus);
             try
             {
                 await _repository.Add(order);
@@ -105,21 +117,37 @@ namespace FoodDelivery.Service
                 OrderId = existingOrder.Id,
                 UserName = existingOrder.User.FirstName + " " + existingOrder.User.LastName,
                 FoodName = existingOrder.Food.Name,
-                RestaurantId = existingOrder.RestaurantId
+                RestaurantId = existingOrder.RestaurantId,
+                OrderStatus = OrderStatusConvert(existingOrder.Status)
             };
 
             return orderDto;
         }
 
-        private Order MappingNewOrder(int userId, int foodId, int restaurantId)
+        private static string OrderStatusConvert(OrderStatus status)
+        {
+            switch (status)
+            {
+                case OrderStatus.Cancelled: return "Cancelled";
+
+                case OrderStatus.Created: return "Created";
+
+                case OrderStatus.Delivering: return "Delivering";
+
+                case OrderStatus.Delivered: return "Delivered";
+
+                default: return "Error";
+            }
+        }
+
+        private Order MappingNewOrder(int userId, int foodId, int? restaurantId, OrderStatus orderStatus)
         {
             Order order = new Order
             {
-                Id = default,
-                CreatedAt = DateTime.UtcNow,
                 UserId = userId,
                 FoodId = foodId,
-                RestaurantId = restaurantId
+                RestaurantId = restaurantId,
+                Status = orderStatus
             };
             return order;
         }

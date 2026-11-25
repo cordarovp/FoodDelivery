@@ -1,10 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using FoodDelivery.Entity.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
 namespace FoodDelivery.Entity
 {
     [Index(nameof(Username), IsUnique = true)]
-    public class User : IEntity<int>
+    public class User : IEntity<int>, ISoftDeletable
     {
         public int Id { get; set; }
         [MaxLength(60)]
@@ -16,12 +17,15 @@ namespace FoodDelivery.Entity
         [Required(ErrorMessage = "Must have longitude for delivery!")]
         public double GeoLon { get; set; }
         [Required(ErrorMessage = "Must have a valid username!")]
-        [StringLength(30, MinimumLength = 5, ErrorMessage = "Must be between 5 and 30 characters")]
+        [StringLength(70, MinimumLength = 5)]
         public required string Username { get; set; }
         [Required(ErrorMessage = "Must have a valid password!")]
         public required string Password { get; set; }
         [Required(ErrorMessage = "Must be set for all users!")]
         public bool IsAdmin { get; set; }
         public ICollection<Order> Orders = new List<Order>();
+
+        public bool IsDeleted { get; set; }
+        public DateTime? DeletedAt { get; set; }
     }
 }

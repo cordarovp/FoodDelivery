@@ -115,7 +115,6 @@ namespace FoodDelivery.Service
         {
             var user = new User
             {
-                Id = default,
                 FirstName = requestUser.FirstName,
                 LastName = requestUser.LastName,
                 GeoLat = requestUser.GeoLat,
