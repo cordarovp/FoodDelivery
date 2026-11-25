@@ -15,7 +15,7 @@ namespace FoodDelivery.Repository
 
         public async Task<IEnumerable<Restaurant>> GetAllAvailableRestaurants(DateTime orderTime)
         {
-            var minimumTime = orderTime.AddSeconds(-_deliveryTimeout); //Set to Seconds for testing purposes
+            var minimumTime = orderTime.AddMinutes(-_deliveryTimeout); //Set to Seconds for testing purposes
 
             return await _dbSet.Where(r => r.LatestOrderTime == null
                                      || r.LatestOrderTime <= minimumTime)
