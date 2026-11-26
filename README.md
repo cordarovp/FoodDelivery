@@ -26,7 +26,7 @@ Checklist for project:
   - [x] Delete Food
   - [x] Add Restaurant
   - [x] Delete Restaurant
-  - [ ] Order Food
+  - [x] Order Food
   - [x] User sing up
   - [ ] User login
 
@@ -55,7 +55,7 @@ API Documentation:
   - [ ] Readme with instructions
 
 -Commit Message:
-  - [ ] Correct messages for commits
+  - [x] Correct messages for commits
 
 -Other:
   - [ ] Create Account
