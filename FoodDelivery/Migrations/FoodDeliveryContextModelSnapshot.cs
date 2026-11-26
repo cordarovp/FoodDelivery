@@ -64,6 +64,9 @@ namespace FoodDelivery.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DeliveredAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("FoodId")
                         .HasColumnType("int");
 
@@ -71,9 +74,6 @@ namespace FoodDelivery.Migrations
                         .HasColumnType("bit");
 
                     b.Property<int?>("RestaurantId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Status")
                         .HasColumnType("int");
 
                     b.Property<int>("UserId")

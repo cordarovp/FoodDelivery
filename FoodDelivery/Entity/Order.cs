@@ -5,7 +5,6 @@ namespace FoodDelivery.Entity
     public enum OrderStatus 
     { 
         Cancelled,
-        Created,
         Delivering,
         Delivered
     }
@@ -13,7 +12,7 @@ namespace FoodDelivery.Entity
     {
         public int Id { get; set; }
         public DateTime CreatedAt { get; set; }
-        public OrderStatus Status { get; set; }
+        public DateTime? DeliveredAt{ get; set; }
 
         public int UserId { get; set; }
         public User User { get; set; } = null!;

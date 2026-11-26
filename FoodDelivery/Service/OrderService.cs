@@ -15,16 +15,19 @@ namespace FoodDelivery.Service
         private readonly IUserRepository _userRepository;
         private readonly IRepository<int, Food> _foodRepository;
         private readonly IRestaurantRepository _restaurantsRepository;
+        private readonly IConfiguration _configuration;
 
         public OrderService(IOrderRepository repository,
            IUserRepository userRepository,
            IRepository<int, Food> foodRepository,
-           IRestaurantRepository restaurantRepository)
+           IRestaurantRepository restaurantRepository,
+           IConfiguration configuration)
         {
             _repository = repository;
             _userRepository = userRepository;
             _foodRepository = foodRepository;
             _restaurantsRepository = restaurantRepository;
+            _configuration = configuration;
         }
 
         public async Task<IEnumerable<ResponseOrderDTO>> GetOrderList()
@@ -34,7 +37,8 @@ namespace FoodDelivery.Service
             var orderDTOList = new List<ResponseOrderDTO>();
             foreach (var order in orderList)
             {
-                var orderDto = CreateOrderDTO(order);
+                var status = await CheckOrderStatusAsync(order);
+                var orderDto = CreateOrderDTO(order, status);
                 orderDTOList.Add(orderDto);
             }
 
@@ -45,7 +49,8 @@ namespace FoodDelivery.Service
         {
             var order = await _repository.GetByIdWithDetails(id);
             if (order == null) return Reply<ResponseOrderDTO>.Failure(ErrorCore.NotFound($"Order with id: '{id}' was not found!"));
-            var orderDto = CreateOrderDTO(order);
+            var status = await CheckOrderStatusAsync(order);
+            var orderDto = CreateOrderDTO(order, status);
             return Reply<ResponseOrderDTO>.Success(orderDto);
         }
 
@@ -58,21 +63,21 @@ namespace FoodDelivery.Service
             if (foundFood == null) return Reply<ResponseOrderDTO>.Failure(ErrorCore.UnprocessableContent($"Food with id: '{requestOrder.FoodId}' does not exist!"));
 
             var foundRestaurant = await FindNearestAvailableRestaurantAsync(foundUser.GeoLat, foundUser.GeoLon);
+            OrderStatus status;
             if (foundRestaurant == null)
             {
-                var cancelledStatus = OrderStatus.Cancelled;
-                var failedOrder = MappingNewOrder(foundUser.Id, foundFood.Id, null, cancelledStatus);
+                var failedOrder = MappingNewOrder(foundUser.Id, foundFood.Id, null);
 
                 await _repository.Add(failedOrder);
                 var failedFullOrder = await _repository.GetByIdWithDetails(failedOrder.Id);
                 if (failedFullOrder == null) return Reply<ResponseOrderDTO>.Failure(ErrorCore.NotFound($"The Order with details by id: '{failedOrder.Id}' could not be found!"));
-                
-                var cancelledDto = CreateOrderDTO(failedFullOrder);
+
+                status = await CheckOrderStatusAsync(failedFullOrder);
+                var cancelledDto = CreateOrderDTO(failedFullOrder, status);
                 return Reply<ResponseOrderDTO>.Failure(ErrorCore.Conflict($"Order was cancelled, no available restaurants were found. Please try again later!"));
             }
 
-            var createdStatus = OrderStatus.Created;
-            var order = MappingNewOrder(foundUser.Id, foundFood.Id, foundRestaurant.Id, createdStatus);
+            var order = MappingNewOrder(foundUser.Id, foundFood.Id, foundRestaurant.Id);
             try
             {
                 await _repository.Add(order);
@@ -84,15 +89,10 @@ namespace FoodDelivery.Service
 
             var fullOrder = await _repository.GetByIdWithDetails(order.Id);
             if (fullOrder == null) return Reply<ResponseOrderDTO>.Failure(ErrorCore.NotFound($"The Order with details by id: '{order.Id}' could not be found!"));
-            var orderDto = CreateOrderDTO(fullOrder);
+            status = await CheckOrderStatusAsync(fullOrder);
+            var orderDto = CreateOrderDTO(fullOrder, status);
             return Reply<ResponseOrderDTO>.Success(orderDto);
         }
-
-        //Should updating orders be available?
-        //public async Task<Reply> PutOrder(int id, RequestOrderDTO order)
-        //{
-        //    throw new NotImplementedException();
-        //}
 
         public async Task<Reply> DeleteOrder(int id)
         {
@@ -110,7 +110,7 @@ namespace FoodDelivery.Service
             return Reply.Success();
         }
 
-        private ResponseOrderDTO CreateOrderDTO(Order existingOrder)
+        private ResponseOrderDTO CreateOrderDTO(Order existingOrder, OrderStatus status)
         {
             var orderDto = new ResponseOrderDTO
             {
@@ -118,10 +118,26 @@ namespace FoodDelivery.Service
                 FullName = existingOrder.User.FirstName + " " + existingOrder.User.LastName,
                 FoodName = existingOrder.Food.Name,
                 RestaurantId = existingOrder.RestaurantId,
-                OrderStatus = OrderStatusConvert(existingOrder.Status)
+                OrderStatus = OrderStatusConvert(status)
             };
 
             return orderDto;
+        }
+
+        private async Task<OrderStatus> CheckOrderStatusAsync(Order order)
+        {
+            var deliveryTimeout = _configuration.GetValue<double>("RestaurantSettings:DeliveryTimeout", 15);
+            var minimumTime = DateTime.UtcNow.AddMinutes(-deliveryTimeout);
+
+            if (order.RestaurantId == null) return OrderStatus.Cancelled;
+
+            if (order.CreatedAt <= minimumTime)
+            {
+                order.DeliveredAt = order.CreatedAt.AddMinutes(deliveryTimeout);
+                await _repository.Update(order);
+                return OrderStatus.Delivered;
+            }
+            else return OrderStatus.Delivering;
         }
 
         private static string OrderStatusConvert(OrderStatus status)
@@ -129,8 +145,6 @@ namespace FoodDelivery.Service
             switch (status)
             {
                 case OrderStatus.Cancelled: return "Cancelled";
-
-                case OrderStatus.Created: return "Created";
 
                 case OrderStatus.Delivering: return "Delivering";
 
@@ -140,14 +154,13 @@ namespace FoodDelivery.Service
             }
         }
 
-        private Order MappingNewOrder(int userId, int foodId, int? restaurantId, OrderStatus orderStatus)
+        private Order MappingNewOrder(int userId, int foodId, int? restaurantId)
         {
             Order order = new Order
             {
                 UserId = userId,
                 FoodId = foodId,
                 RestaurantId = restaurantId,
-                Status = orderStatus
             };
             return order;
         }
