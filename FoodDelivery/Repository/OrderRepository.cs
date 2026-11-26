@@ -14,18 +14,22 @@ namespace FoodDelivery.Repository
         public async Task<IEnumerable<Order>> GetAllWithDetails()
         {
             return await _dbSet.AsNoTracking()
+                .IgnoreQueryFilters()
                 .Include(o => o.User)
                 .Include(o => o.Food)
                 .Include(o => o.Restaurant)
+                .Where(o => !o.IsDeleted)
                 .ToListAsync();
         }
 
         public async Task<Order?> GetByIdWithDetails(int id)
         {
             return await _dbSet.AsNoTracking()
+                .IgnoreQueryFilters()
                 .Include(o => o.User)
                 .Include(o => o.Food)
                 .Include(o => o.Restaurant)
+                .Where(o => !o.IsDeleted)
                 .FirstOrDefaultAsync(o => o.Id == id);
         }
     }

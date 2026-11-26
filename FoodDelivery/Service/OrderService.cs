@@ -115,7 +115,7 @@ namespace FoodDelivery.Service
             var orderDto = new ResponseOrderDTO
             {
                 OrderId = existingOrder.Id,
-                UserName = existingOrder.User.FirstName + " " + existingOrder.User.LastName,
+                FullName = existingOrder.User.FirstName + " " + existingOrder.User.LastName,
                 FoodName = existingOrder.Food.Name,
                 RestaurantId = existingOrder.RestaurantId,
                 OrderStatus = OrderStatusConvert(existingOrder.Status)
