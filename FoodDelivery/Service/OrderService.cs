@@ -126,18 +126,26 @@ namespace FoodDelivery.Service
 
         private async Task<OrderStatus> CheckOrderStatusAsync(Order order)
         {
-            var deliveryTimeout = _configuration.GetValue<double>("RestaurantSettings:DeliveryTimeout", 15);
-            var minimumTime = DateTime.UtcNow.AddMinutes(-deliveryTimeout);
-
             if (order.RestaurantId == null) return OrderStatus.Cancelled;
 
-            if (order.CreatedAt <= minimumTime)
+            if (order.DeliveredAt == null)
             {
-                order.DeliveredAt = order.CreatedAt.AddMinutes(deliveryTimeout);
-                await _repository.Update(order);
-                return OrderStatus.Delivered;
+                var deliveryTime = _configuration.GetValue<double>("RestaurantSettings:DeliveryTimeout", 15);
+                DateTime currentTime = DateTime.UtcNow;
+                DateTime deliveryExpectation = order.CreatedAt.AddMinutes(deliveryTime);
+                if (currentTime >= deliveryExpectation)
+                {
+                    order.DeliveredAt = deliveryExpectation;
+                    await _repository.Update(order);
+                    return OrderStatus.Delivered;
+                }
+                else
+                {
+                    return OrderStatus.Delivering;
+                }
+
             }
-            else return OrderStatus.Delivering;
+            else return OrderStatus.Delivered;
         }
 
         private static string OrderStatusConvert(OrderStatus status)
