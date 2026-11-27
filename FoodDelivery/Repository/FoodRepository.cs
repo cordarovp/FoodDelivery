@@ -14,18 +14,14 @@ namespace FoodDelivery.Repository
         public async Task<IEnumerable<Food>> GetAllWithReview()
         {
             return await _dbSet.AsNoTracking()
-                .IgnoreQueryFilters()
                 .Include(f => f.Reviews)
-                .Where(f => !f.IsDeleted)
                 .ToListAsync();
         }
 
         public async Task<Food?> GetByIdWithReview(int id)
         {
             return await _dbSet.AsNoTracking()
-                .IgnoreQueryFilters()
                 .Include(f => f.Reviews)
-                .Where(f => !f.IsDeleted)
                 .FirstOrDefaultAsync(f => f.Id == id);
         }
     }
