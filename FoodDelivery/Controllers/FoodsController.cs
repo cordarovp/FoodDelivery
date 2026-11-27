@@ -1,5 +1,6 @@
 ﻿using FoodDelivery.DTO.Food;
 using FoodDelivery.Service.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FoodDelivery.Controllers
@@ -15,6 +16,7 @@ namespace FoodDelivery.Controllers
             _service = service;
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ResponseFoodDTO>>> GetFood()
         {
@@ -22,6 +24,7 @@ namespace FoodDelivery.Controllers
             return Ok(foodList);
         }
 
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<ActionResult<ResponseFoodDTO>> GetFoodById(int id)
         {
@@ -29,7 +32,7 @@ namespace FoodDelivery.Controllers
 
             return this.ToActionResult(existingFood);
         }
-
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<ResponseFoodDTO>> PostFood(RequestFoodDTO requestFood)
         {
@@ -38,6 +41,7 @@ namespace FoodDelivery.Controllers
             return this.ToCreatedAtActionResult(createdFood, nameof(GetFoodById), new { id = createdFood.Value?.Id });
         }
 
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutFood(int id, RequestFoodDTO requestFood)
         {
@@ -45,6 +49,7 @@ namespace FoodDelivery.Controllers
             return this.ToActionResult(success);
         }
 
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteFood(int id)
         {

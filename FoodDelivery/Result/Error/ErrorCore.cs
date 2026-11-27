@@ -8,5 +8,7 @@
         public static ErrorCore Validation(string message) => new(message, ErrorType.Validation);
         public static ErrorCore Conflict(string message) => new(message, ErrorType.Conflict);
         public static ErrorCore UnprocessableContent(string message) => new(message, ErrorType.Unprocessable);
+        public static ErrorCore Unauthorized(string message) => new(message, ErrorType.Unauthorized);
+        public static ErrorCore Forbidden(string message) => new(message, ErrorType.Forbidden);
     }
 }

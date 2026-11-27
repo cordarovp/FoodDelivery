@@ -6,6 +6,8 @@
         Validation,
         NotFound,
         Conflict,
-        Unprocessable
+        Unprocessable,
+        Unauthorized,
+        Forbidden
     }
 }

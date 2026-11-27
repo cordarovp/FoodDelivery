@@ -51,6 +51,14 @@ namespace FoodDelivery.Controllers
                     statusCode = StatusCodes.Status422UnprocessableEntity;
                     break;
 
+                case ErrorType.Unauthorized:
+                    statusCode = StatusCodes.Status401Unauthorized;
+                    break;
+
+                case ErrorType.Forbidden:
+                    statusCode = StatusCodes.Status403Forbidden;
+                    break;
+
                 default:
                     statusCode = StatusCodes.Status500InternalServerError;
                     break;
