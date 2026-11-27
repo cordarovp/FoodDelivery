@@ -5,5 +5,7 @@
         public int Id { get; set; }
         public required string Name { get; set; }
         public required decimal Price { get; set; }
+        public double? AverageRating { get; set; }
+        public string? FirstComment { get; set; }
     }
 }

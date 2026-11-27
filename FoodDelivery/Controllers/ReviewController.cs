@@ -18,7 +18,7 @@ namespace FoodDelivery.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ResponseReviewDTO>>> GetReview()
         {
-            var reviewList = _service.GetReviewList();
+            var reviewList = await _service.GetReviewList();
             return Ok(reviewList);
         }
 
@@ -39,7 +39,7 @@ namespace FoodDelivery.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutReview(int id, RequestReviewDTO requestReview)
         {
-            var success = await _service.PutOrder(id, requestReview);
+            var success = await _service.PutReview(id, requestReview);
             return this.ToActionResult(success);
         }
 

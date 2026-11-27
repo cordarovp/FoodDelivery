@@ -11,11 +11,11 @@ namespace FoodDelivery.Service
 {
     public class ReviewService : IReviewService
     {
-        private readonly IRepository<int, Review> _repository;
+        private readonly IReviewRepository _repository;
         private readonly IUserRepository _userRepository;
         private readonly IRepository<int, Food> _foodRepository;
 
-        public ReviewService(IRepository<int, Review> repository, IUserRepository userRepository, IRepository<int, Food> foodRepository)
+        public ReviewService(IReviewRepository repository, IUserRepository userRepository, IRepository<int, Food> foodRepository)
         {
             _repository = repository;
             _userRepository = userRepository;
@@ -24,7 +24,7 @@ namespace FoodDelivery.Service
 
         public async Task<IEnumerable<ResponseReviewDTO>> GetReviewList()
         {
-            var reviewList = await _repository.GetAll();
+            var reviewList = await _repository.GetAllWithDetails();
 
             var reviewDTOList = new List<ResponseReviewDTO>();
             foreach (var review in reviewList)
@@ -38,7 +38,7 @@ namespace FoodDelivery.Service
 
         public async Task<Reply<ResponseReviewDTO>> GetReviewById(int id)
         {
-            var review = await _repository.GetById(id);
+            var review = await _repository.GetByIdWithDetails(id);
             if (review == null) return Reply<ResponseReviewDTO>.Failure(ErrorCore.NotFound($"Review with id: '{id}' was not found!"));
             var reviewDto = CreateReviewDTO(review);
             return Reply<ResponseReviewDTO>.Success(reviewDto);
@@ -55,13 +55,13 @@ namespace FoodDelivery.Service
             var review = MappingNewReview(requestReview.Rating, requestReview.Comment, foundUser.Id, foundFood.Id);
             await _repository.Add(review);
 
-            var fullReview = await _repository.GetById(review.Id);
+            var fullReview = await _repository.GetByIdWithDetails(review.Id);
             if(fullReview == null) return Reply<ResponseReviewDTO>.Failure(ErrorCore.NotFound($"The Review with details by id: '{review.Id}' could not be found!"));
             var reviewDto = CreateReviewDTO(fullReview);
             return Reply<ResponseReviewDTO>.Success(reviewDto);
         }
 
-        public async Task<Reply> PutOrder(int id, RequestReviewDTO requestReview)
+        public async Task<Reply> PutReview(int id, RequestReviewDTO requestReview)
         {
             var existingReview = await _repository.GetById(id);
             if (existingReview == null) return Reply.Failure(ErrorCore.NotFound($"Review with id: '{id}' was not found!"));

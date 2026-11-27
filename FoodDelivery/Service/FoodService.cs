@@ -1,4 +1,5 @@
 ﻿using FoodDelivery.DTO.Food;
+using FoodDelivery.DTO.Review;
 using FoodDelivery.Entity;
 using FoodDelivery.Repository.Interfaces;
 using FoodDelivery.Result;
@@ -10,16 +11,16 @@ namespace FoodDelivery.Service
 {
     public class FoodService : IFoodService
     {
-        private readonly IRepository<int, Food> _repository;
+        private readonly IFoodRepository _repository;
 
-        public FoodService(IRepository<int, Food> repository)
+        public FoodService(IFoodRepository repository)
         {
             _repository = repository;
         }
 
         public async Task<IEnumerable<ResponseFoodDTO>> GetFoodList()
         {
-            var foodList = await _repository.GetAll();
+            var foodList = await _repository.GetAllWithReview();
 
             var foodDTOList = new List<ResponseFoodDTO>();
             foreach (var food in foodList)
@@ -28,12 +29,12 @@ namespace FoodDelivery.Service
                 foodDTOList.Add(foodDto);
             }
 
-            return foodDTOList;
+            return foodDTOList.OrderByDescending(dto => dto.AverageRating);
         }
 
         public async Task<Reply<ResponseFoodDTO>> GetFoodById(int id)
         {
-            var food = await _repository.GetById(id);
+            var food = await _repository.GetByIdWithReview(id);
             if (food == null) return Reply<ResponseFoodDTO>.Failure(ErrorCore.NotFound($"Food with id: '{id}' was not found!"));
             var foodDto = CreateFoodDTO(food);
             return Reply<ResponseFoodDTO>.Success(foodDto);
@@ -47,6 +48,8 @@ namespace FoodDelivery.Service
             var food = MappingNewFood(requestFood);
             await _repository.Add(food);
 
+            var fullFood = _repository.GetByIdWithReview(food.Id);
+            if (fullFood == null) return Reply<ResponseFoodDTO>.Failure(ErrorCore.NotFound($"Food with details by id: '{food.Id}' could not be found!"));
             var foodDto = CreateFoodDTO(food);
             return Reply<ResponseFoodDTO>.Success(foodDto);
         }
@@ -92,7 +95,9 @@ namespace FoodDelivery.Service
             {
                 Id = existingFood.Id,
                 Name = existingFood.Name,
-                Price = existingFood.Price
+                Price = existingFood.Price,
+                AverageRating = CalculateAverageRating(existingFood.Reviews),
+                FirstComment = existingFood.Reviews.FirstOrDefault()?.Comment,
             };
 
             return foodDto;
@@ -112,6 +117,13 @@ namespace FoodDelivery.Service
         {
             existingFood.Name = requestFood.Name;
             existingFood.Price = requestFood.Price;
+        }
+
+        private double? CalculateAverageRating(ICollection<Review> reviewList)
+        {
+            if (!reviewList.Any() && reviewList != null) return null;
+
+            return reviewList?.Average(r => r.Rating);
         }
     }
 }
