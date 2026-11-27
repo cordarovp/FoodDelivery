@@ -24,6 +24,7 @@ namespace FoodDelivery.Entity
         [Required(ErrorMessage = "Must be set for all users!")]
         public bool IsAdmin { get; set; }
         public ICollection<Order> Orders = new List<Order>();
+        public ICollection<Review> Reviews = new List<Review>();
 
         public bool IsDeleted { get; set; }
         public DateTime? DeletedAt { get; set; }

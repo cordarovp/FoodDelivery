@@ -12,6 +12,7 @@ namespace FoodDelivery.Data
         public DbSet<Restaurant> Restaurants { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Order> Orders { get; set; }
+        public DbSet<Review> Reviews { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -21,6 +22,7 @@ namespace FoodDelivery.Data
             modelBuilder.Entity<Restaurant>().HasQueryFilter(r => !r.IsDeleted);
             modelBuilder.Entity<Food>().HasQueryFilter(f => !f.IsDeleted);
             modelBuilder.Entity<Order>().HasQueryFilter(o => !o.IsDeleted);
+            modelBuilder.Entity<Review>().HasQueryFilter(r => !r.IsDeleted);
 
             modelBuilder.Entity<Order>()
                 .HasOne(o => o.User)
@@ -37,6 +39,18 @@ namespace FoodDelivery.Data
             modelBuilder.Entity<Order>()
                 .HasOne(o => o.Food)
                 .WithMany()
+                .HasForeignKey(o => o.FoodId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Review>()
+                .HasOne(o => o.User)
+                .WithMany(u => u.Reviews)
+                .HasForeignKey(o => o.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Review>()
+                .HasOne(o => o.Food)
+                .WithMany(f => f.Reviews)
                 .HasForeignKey(o => o.FoodId)
                 .OnDelete(DeleteBehavior.Restrict);
         }

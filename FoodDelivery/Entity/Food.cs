@@ -13,6 +13,9 @@ namespace FoodDelivery.Entity
         [Required(ErrorMessage = "Food must have a set price!")]
         [Precision(14, 2)]
         public decimal Price { get; set; }
+
+        public ICollection<Review> Reviews = new List<Review>();
+
         public bool IsDeleted { get; set; }
         public DateTime? DeletedAt { get; set; }
     }
