@@ -35,10 +35,10 @@ Checklist for project:
   - [ ] User
 
 -Bonus:
-  - [ ] Food Rating
-  - [ ] Sort food by rating
-  - [ ] User comments
-  - [ ] Show only one comment, with option for more
+  - [x] Food Rating
+  - [x] Sort food by rating
+  - [x] User comments
+  - [x] Show only one comment, with option for more
 
 -Database:
   - [x] Relation database of choice (SQLServer with LocalDb)
