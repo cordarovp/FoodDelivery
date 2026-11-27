@@ -82,7 +82,7 @@ namespace FoodDelivery.Service
             {
                 await _repository.Add(order);
             }
-            catch(DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException)
             {
                 return Reply<ResponseOrderDTO>.Failure(ErrorCore.Conflict("Restaurant has already been used!"));
             }
@@ -177,7 +177,7 @@ namespace FoodDelivery.Service
             const double degToRad = Math.PI / 180;
             double cosUserLat = Math.Cos(latitude * degToRad);
             var availableRestaurants = await _restaurantsRepository.GetAllAvailableRestaurants(DateTime.UtcNow);
-            if (availableRestaurants.IsNullOrEmpty()) return null;
+            if (availableRestaurants == null || !availableRestaurants.Any()) return null;
 
             Restaurant? nearest = null;
             double minA = double.MaxValue;
