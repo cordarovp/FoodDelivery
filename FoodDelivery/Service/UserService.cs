@@ -44,7 +44,7 @@ namespace FoodDelivery.Service
             if (requestUser == null) return Reply<ResponseUserDTO>.Failure(ErrorCore.Validation("User was not forwarded!"));
             if (await IsUsernameTakenAsync(0, requestUser)) return Reply<ResponseUserDTO>.Failure(ErrorCore.Conflict($"User with username: '{requestUser.Username}' already exists!"));
 
-            var newUser = MappingNewUser(0, requestUser);
+            var newUser = MappingNewUser(requestUser);
             await _repository.Add(newUser);
 
             var userDto = CreateUserDTO(newUser);
@@ -111,11 +111,10 @@ namespace FoodDelivery.Service
             existingUser.Password = requestUser.Password;
         }
 
-        private User MappingNewUser(int id, RequestUserDTO requestUser)
+        private User MappingNewUser(RequestUserDTO requestUser)
         {
             var user = new User
             {
-                Id = 0,
                 FirstName = requestUser.FirstName,
                 LastName = requestUser.LastName,
                 GeoLat = requestUser.GeoLat,

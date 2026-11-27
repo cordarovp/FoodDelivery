@@ -7,5 +7,6 @@
         public static ErrorCore NotFound(string message) => new(message, ErrorType.NotFound);
         public static ErrorCore Validation(string message) => new(message, ErrorType.Validation);
         public static ErrorCore Conflict(string message) => new(message, ErrorType.Conflict);
+        public static ErrorCore UnprocessableContent(string message) => new(message, ErrorType.Unprocessable);
     }
 }
