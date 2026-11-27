@@ -136,7 +136,7 @@ namespace FoodDelivery.Service
                 if (currentTime >= deliveryExpectation)
                 {
                     order.DeliveredAt = deliveryExpectation;
-                    await _repository.Update(order);
+                    await _repository.Save();
                     return OrderStatus.Delivered;
                 }
                 else
